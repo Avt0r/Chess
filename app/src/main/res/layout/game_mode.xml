@@ -1,93 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:backgroundTint="@color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
         <LinearLayout
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
-            app:backgroundTint="@color/transparent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:layout_marginBottom="1dp"
-                android:layout_gravity="center"
-                app:backgroundTint="@color/transparent">
-                <Button
-                    android:id="@+id/Button_HumanVsAI"
-                    android:layout_width="149dp"
-                    android:layout_height="match_parent"
-                    android:text="you vs ai"
-                    android:textColor="@color/white"
-                    android:background="@drawable/style_game_mode_button1"
-                    app:backgroundTint="@color/black"
-                    android:layout_marginEnd="1dp" />
-                <EditText
-                    android:id="@+id/depth1"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:text="1"
-                    android:inputType="number"
-                    app:backgroundTint="@color/black"
-                    android:textColor="@color/white"
-                    android:gravity="center"
-                    android:background="@drawable/style_game_mode_edit_depth1" />
-
-
-            </LinearLayout>
+            android:layout_marginBottom="1dp"
+            android:orientation="horizontal"
+            app:backgroundTint="@color/transparent">
 
             <Button
-                android:id="@+id/Button_HumanVsHuman"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="you vs your friend"
+                android:id="@+id/Button_HumanVsAI"
+                android:layout_width="149dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="1dp"
+                android:background="@drawable/style_game_mode_button1"
+                android:text="you vs ai"
                 android:textColor="@color/white"
-                android:background="@drawable/style_game_mode_button2"
-                app:backgroundTint="@color/black"
-                android:layout_marginBottom="1dp"/>
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                app:backgroundTint="@color/black" />
+
+            <EditText
+                android:id="@+id/depth1"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/style_game_mode_edit_depth1"
                 android:gravity="center"
-                android:background="@color/transparent">
-                <EditText
-                    android:id="@+id/depth2"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:text="1"
-                    android:inputType="number"
-                    android:textColor="@color/white"
-                    android:gravity="center"
-                    app:backgroundTint="@color/black"
-                    android:background="@drawable/style_game_mode_edit_depth2"/>
+                android:inputType="number"
+                android:text="1"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/black" />
+
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/Button_HumanVsHuman"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:background="@drawable/style_game_mode_button2"
+            android:text="you vs your friend"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/black" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/depth2"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/style_game_mode_edit_depth2"
+                android:gravity="center"
+                android:inputType="number"
+                android:text="1"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/black" />
+
             <Button
                 android:id="@+id/Button_AIVsAI"
                 android:layout_width="98dp"
                 android:layout_height="match_parent"
+                android:layout_marginHorizontal="1dp"
+                android:background="@drawable/style_game_mode_button3"
                 android:text="ai vs ai"
                 android:textColor="@color/white"
-                android:background="@drawable/style_game_mode_button3"
-                app:backgroundTint="@color/black"
-                android:layout_marginHorizontal="1dp"/>
-                <EditText
-                    android:id="@+id/depth3"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:text="1"
-                    android:inputType="number"
-                    android:textColor="@color/white"
-                    android:gravity="center"
-                    app:backgroundTint="@color/black"
-                    android:background="@drawable/style_game_mode_edit_depth3"/>
-            </LinearLayout>
+                app:backgroundTint="@color/black" />
+
+            <EditText
+                android:id="@+id/depth3"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/style_game_mode_edit_depth3"
+                android:gravity="center"
+                android:inputType="number"
+                android:text="1"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/black" />
         </LinearLayout>
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
