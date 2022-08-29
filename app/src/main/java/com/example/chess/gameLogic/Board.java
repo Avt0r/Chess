@@ -40,6 +40,10 @@ public class Board {
         this.pieces = board.getPieces();
     }
 
+    public Board getCopy(){
+        return new Board(this);
+    }
+
     private void setStartPieces() {
         pieces = new ArrayList<>();
         pieces.add(new King(E1, white));
