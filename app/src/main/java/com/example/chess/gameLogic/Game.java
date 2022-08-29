@@ -110,6 +110,7 @@ public class Game {
             } else {
                 second.sendStep();
             }
+            adapter.notify();
         }
     };
 }
