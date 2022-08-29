@@ -19,11 +19,12 @@
         <TextView
             android:id="@+id/end_game_result"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="50dp"
             android:background="@drawable/style_end_game_result"
             android:text="Result of game"
             android:textColor="@color/white"
             android:textSize="18sp"
+            android:gravity="center"
             app:backgroundTint="@color/black" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

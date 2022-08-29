@@ -9,61 +9,53 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:foregroundGravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:foregroundGravity="center">
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:layout_width="3000dp"
             android:layout_height="3000dp"
-            app:srcCompat="@drawable/main_activity_background"
             android:layout_gravity="center"
-            android:layout_marginTop="15dp"/>
+            android:layout_marginTop="15dp"
+            app:srcCompat="@drawable/main_activity_background" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:gravity="center"
             android:orientation="vertical"
-            android:gravity="center_horizontal">
-
-            <ImageView
-                android:layout_width="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="40dp">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center|top"
-                android:layout_marginTop="50dp"
-                android:src="@drawable/logo"/>
+                android:paddingTop="60dp"
+                android:paddingBottom="50dp">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center|top"
+                    android:src="@drawable/logo"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <LinearLayout
-                android:layout_marginTop="50dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:orientation="horizontal"
-                android:layout_marginBottom="10dp">
-                <Button
-                    android:id="@+id/startGame"
-                    android:background="@drawable/style_activity_main_play_button"
-                    app:backgroundTint="@color/black"
-                    android:layout_width="250dp"
-                    android:layout_height="70dp"
-                    android:text="Play"
-                    android:textColor="@color/white"
-                    android:textSize="20sp"
-                    android:gravity="center"
-                    android:layout_gravity="center"/>
-
-<!--                <EditText-->
-<!--                    android:id="@+id/editDepth"-->
-<!--                    android:layout_width="70dp"-->
-<!--                    android:layout_height="70dp"-->
-<!--                    android:background="@drawable/style_depth_edit"-->
-<!--                    android:inputType="number"-->
-<!--                    android:textColor="@color/white"-->
-<!--                    android:gravity="center"-->
-<!--                    android:layout_gravity="center"/>-->
-            </LinearLayout>
+            <Button
+                android:id="@+id/startGame"
+                android:layout_width="250dp"
+                android:layout_height="70dp"
+                android:background="@drawable/style_activity_main_play_button"
+                android:gravity="center"
+                android:text="Play"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                app:backgroundTint="@color/black"
+                android:layout_marginBottom="80dp"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
