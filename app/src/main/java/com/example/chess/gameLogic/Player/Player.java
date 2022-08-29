@@ -18,7 +18,11 @@ public abstract class Player {
         this.color = color;
     }
 
-    public abstract Types changeType();
+    public  void changeType(Types type){
+        assert game != null;
+        game.changePiece(type);
+    }
+    public abstract void chooseType();
     public abstract void paveWay();
     public boolean hasPath(){
         return path!=null;

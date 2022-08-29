@@ -1,9 +1,5 @@
 package com.example.chess.gameLogic;
 
-public enum Events {
+public enum EventTypes {
     MOVING,ATTACKING,CASTLING,CHANGING;
-
-    public String getText(){
-        return "null";
-    }
 }

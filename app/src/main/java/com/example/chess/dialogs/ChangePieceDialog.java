@@ -6,13 +6,15 @@ import android.widget.ImageButton;
 
 import com.example.chess.R;
 import com.example.chess.gameLogic.Pieces.Types;
+import com.example.chess.gameLogic.Player.Human;
+import com.example.chess.gameLogic.Player.Player;
 
 public class ChangePieceDialog extends Dialog {
     private volatile Types changeType = null;
 
-    public ChangePieceDialog(Context context) {
+    public ChangePieceDialog(Context context, Player player) {
         super(context);
-        Mutex mutex = new Mutex();
+        setContentView(R.layout.change_piece_item);
         ImageButton queenButton = findViewById(R.id.change_piece_queen);
         ImageButton knightButton = findViewById(R.id.change_piece_knight);
         ImageButton rookButton = findViewById(R.id.change_piece_rook);
@@ -33,30 +35,6 @@ public class ChangePieceDialog extends Dialog {
             changeType = Types.BISHOP;
             dismiss();
         });
-        setOnDismissListener(v->{
-            mutex.unlock();
-        });
-    }
-
-
-
-    @Override
-    public void show() {
-        super.show();
-    }
-
-    public Types getSelectedType() {
-        return changeType;
-    }
-
-    public static class Mutex{
-        public synchronized void lock(){
-            try{
-                this.wait();
-            }catch (InterruptedException i){lock();}
-        }
-        public synchronized void unlock(){
-            this.notify();
-        }
+        setOnDismissListener(v-> player.changeType(changeType));
     }
 }

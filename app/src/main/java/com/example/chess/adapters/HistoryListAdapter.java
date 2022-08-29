@@ -12,32 +12,32 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.chess.R;
-import com.example.chess.gameLogic.Events;
+import com.example.chess.gameLogic.EventTypes;
+import com.example.chess.gameLogic.Step;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class HistoryListAdapter extends ArrayAdapter<Events> {
+public class HistoryListAdapter extends ArrayAdapter<Step> {
 
-    private final List<Events> events;
+    private final List<Step> steps;
 
-    public HistoryListAdapter(Context context, int res, List<Events> events){
-        super(context,res,events);
-        this.events = events;
+    public HistoryListAdapter(Context context, int res, List<Step> steps){
+        super(context,res,steps);
+        this.steps = steps;
     }
 
     @SuppressLint("InflateParams")
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        Events event = getItem(position);
+        Step step = getItem(position);
 
         if(convertView == null) {
             convertView = LayoutInflater.from(getContext())
                     .inflate(R.layout.history_list_item, null);
         }
         ((TextView)convertView.findViewById(R.id.event_moving_path))
-                .setText(event.getText());
+                .setText(step.getPath().toString());
 
         return convertView;
     }

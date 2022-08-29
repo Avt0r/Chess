@@ -34,8 +34,8 @@ public class AI extends Player {
     }
 
     @Override
-    public Types changeType() {
-        return Types.QUEEN;
+    public void chooseType() {
+        changeType(Types.QUEEN);
     }
 
     @Override

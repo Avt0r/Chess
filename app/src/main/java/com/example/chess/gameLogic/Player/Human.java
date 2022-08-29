@@ -5,8 +5,8 @@ import static com.example.chess.gameLogic.Squares.clicked;
 import com.example.chess.activities.GameActivity;
 import com.example.chess.dialogs.ChangePieceDialog;
 import com.example.chess.gameLogic.Game;
-import com.example.chess.gameLogic.Squares;
 import com.example.chess.gameLogic.Pieces.Types;
+import com.example.chess.gameLogic.Squares;
 
 import java.util.Scanner;
 
@@ -30,12 +30,9 @@ public class Human extends Player {
     }
 
     @Override
-    public Types changeType() {
-        ChangePieceDialog dialog = new ChangePieceDialog(activity);
+    public void chooseType() {
+        ChangePieceDialog dialog = new ChangePieceDialog(activity,this);
         dialog.show();
-        ChangePieceDialog.Mutex mutex = new ChangePieceDialog.Mutex();
-        mutex.lock();
-        return dialog.getSelectedType();
     }
 
     public void paveWay() {
