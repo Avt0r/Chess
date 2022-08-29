@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.widget.ArrayAdapter;
 
 import com.example.chess.activities.GameActivity;
+import com.example.chess.adapters.HistoryListAdapter;
 import com.example.chess.dialogs.EndGameDialog;
 import com.example.chess.gameLogic.Player.AI;
 import com.example.chess.gameLogic.Player.Human;
@@ -22,9 +23,9 @@ public class Game {
     public final Board board = new Board();
     private boolean step = true;
     private final GameActivity activity;
-    private final List<Step> steps = new ArrayList<>();
+    private final ArrayAdapter<Step> adapter;
 
-    public Game(GameActivity activity, Types first, Types second, int... depth) {
+    public Game(GameActivity activity, Types first, Types second, ArrayAdapter<Step> adapter, int... depth) {
         this.activity = activity;
         switch (first) {
             case Human:
@@ -46,16 +47,13 @@ public class Game {
             default:
                 throw new RuntimeException();
         }
+        this.adapter = adapter;
         taskManager.execute();
     }
 
     public void changePiece(com.example.chess.gameLogic.Pieces.Types type){
         board.changePiece(type);
         Squares.updateImages();
-    }
-
-    public List<Step> getStepsList() {
-        return steps;
     }
 
     public void makeStep(String path, boolean color) {
@@ -67,11 +65,14 @@ public class Game {
                     second.chooseType();
                 }
             }
+            EventTypes event = board.getLastEvent();
             changeStep();
             Squares.updateImages();
+            adapter.add(new Step(board,path, event));
             if (board.isMate(!color)) {
                 EndGameDialog dialog = new EndGameDialog(activity);
                 dialog.show();
+                taskManager.cancel(true);
             }
         }
     }

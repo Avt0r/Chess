@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Board {
+
     private ArrayList<Piece> pieces;
 
     //7  56 57 68 69 60 61 62 63
@@ -27,6 +28,7 @@ public class Board {
     //0  0  1  2  3  4  5  6  7
 
     private final BitSet grid;
+    private EventTypes lastEvent;
 
     public Board() {
         grid = new BitSet(64);
@@ -38,6 +40,10 @@ public class Board {
     public Board(Board board) {
         this.grid = board.grid.get(0, 64);
         this.pieces = board.getPieces();
+    }
+
+    public EventTypes getLastEvent() {
+        return lastEvent;
     }
 
     public Board getCopy(){
@@ -399,8 +405,10 @@ public class Board {
     }
 
     private void move(Squares from, Squares to) {
+        lastEvent = EventTypes.MOVING;
         if (grid.get(to.number)) {
             pieces.remove(getPiece(to));
+            lastEvent = EventTypes.ATTACKING;
         }
         grid.clear(from.number);
         grid.set(to.number);
@@ -429,6 +437,7 @@ public class Board {
         }
         if (canCastling(color, path)) {
             castling(from, to);
+            lastEvent = EventTypes.CASTLING;
             return true;
         }
         if (willKingBeProtected(getPiece(from), to)) {
