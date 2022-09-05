@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 
 import com.example.chess.R;
 import com.example.chess.gameLogic.Board;
@@ -41,15 +42,15 @@ public class HistoryListAdapter extends ArrayAdapter<Step> {
         }
         ((TextView) convertView.findViewById(R.id.event_moving_path))
                 .setText(step.getMessage());
-
+        switch (step.getType()){
+            case START:{
+                ((CardView)convertView.findViewById(R.id.event_object)).setBackgroundResource(R.drawable.img_game_start);
+            }
+            case MOVING:{}
+            case CASTLING:{}
+            case CHANGING:{}
+            case ATTACKING:{}
+        }
         return convertView;
-    }
-
-    public void addStep(Board board, String message, EventTypes type) {
-        steps.add(new Step(board.getCopy(), message, type));
-    }
-
-    public void addStep(Board board, Path path, EventTypes type) {
-        steps.add(new Step(board.getCopy(), path, type));
     }
 }
