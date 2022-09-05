@@ -44,7 +44,7 @@ public class HistoryListAdapter extends ArrayAdapter<Step> {
                 .setText(step.getMessage());
         switch (step.getType()){
             case START:{
-                ((CardView)convertView.findViewById(R.id.event_object)).setBackgroundResource(R.drawable.img_game_start);
+                ((CardView)convertView.findViewById(R.id.event_object)).setBackground(getContext().getDrawable(R.drawable.img_game_start));
             }
             case MOVING:{}
             case CASTLING:{}
