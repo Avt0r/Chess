@@ -11,6 +11,7 @@
     android:gravity="center"
     android:layout_marginTop="1dp">
     <androidx.cardview.widget.CardView
+        android:id="@+id/event_object"
         android:layout_width="130dp"
         android:layout_height="80dp"
         android:backgroundTint="@color/gray">
@@ -48,6 +49,8 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:background="@color/light_gray"
-        android:textColor="@color/black"/>
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:text="event_message"/>
 </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
