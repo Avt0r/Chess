@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,7 +16,6 @@ import androidx.cardview.widget.CardView;
 import com.example.chess.R;
 import com.example.chess.gameLogic.Board;
 import com.example.chess.gameLogic.EventTypes;
-import com.example.chess.gameLogic.Path;
 import com.example.chess.gameLogic.Step;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public class HistoryListAdapter extends ArrayAdapter<Step> {
         steps.add(new Step(new Board(), "Game start!", EventTypes.START));
     }
 
-    @SuppressLint("InflateParams")
+    @SuppressLint({"InflateParams", "UseCompatLoadingForDrawables"})
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -44,7 +44,8 @@ public class HistoryListAdapter extends ArrayAdapter<Step> {
                 .setText(step.getMessage());
         switch (step.getType()){
             case START:{
-                ((CardView)convertView.findViewById(R.id.event_object)).setBackground(getContext().getDrawable(R.drawable.img_game_start));
+                ImageView imageView = (convertView.findViewById(R.id.event_object));
+                imageView.setBackground(getContext().getDrawable(R.drawable.event_start));
             }
             case MOVING:{}
             case CASTLING:{}
