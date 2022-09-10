@@ -1,33 +1,38 @@
 package com.example.chess.gameLogic;
 
+import com.example.chess.gameLogic.Pieces.Piece;
+
 public class Step {
     private final Board board;
-    private final Path path;
+    private Path path;
     private final String message;
     private final EventTypes type;
 
     public Step(Board board, Path path, EventTypes type){
-        this.board = board;
+        this.board = new Board(board);
         this.path = path;
-        this.message = null;
+        this.message = path.toString();
         this.type = type;
     }
 
     public Step(Board board, String message, EventTypes type){
-        this.board = board;
-        this.path = null;
+        this.board = new Board(board);
         this.message = message;
+        try {
+            Path.getPath(message);
+            this.path = Path.getPath(message);
+        }catch (ArrayIndexOutOfBoundsException ignored){
+            this.path = null;
+        }
         this.type = type;
     }
 
     public String getMessage(){
-        assert path != null || message != null;
-        return path == null? message : path.toString();
+        return message;
     }
 
     public Path getPath(){
-        assert path != null || message != null;
-        return path == null? Path.getPath(message) : path;
+        return path;
     }
 
     public Board getBoard() {
@@ -36,5 +41,9 @@ public class Step {
 
     public EventTypes getType() {
         return type;
+    }
+
+    public Piece getPieceFrom(){
+        return board.getPiece(path.getFrom());
     }
 }

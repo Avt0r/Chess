@@ -32,6 +32,7 @@ public class Bishop extends Piece {
         return color ? "B" : "b";
     }
 
+
     @Override
     public int getImage() {
         return color ? R.drawable.piece_bishop_white : R.drawable.piece_bishop_black;

@@ -42,22 +42,28 @@ public class HistoryListAdapter extends ArrayAdapter<Step> {
         }
         ((TextView) convertView.findViewById(R.id.event_moving_path))
                 .setText(step.getMessage());
-        switch (step.getType()){
-            case START:{
-                ImageView imageView = (convertView.findViewById(R.id.event_object));
-                imageView.setBackground(getContext().getDrawable(R.drawable.event_start));
+        {
+            ImageView imageView;
+            switch (step.getType()) {
+                case START:
+                    imageView = (convertView.findViewById(R.id.event_object));
+                    imageView.setBackground(getContext().getDrawable(R.drawable.event_start));
+                    break;
+                case MOVING:
+                    imageView = (convertView.findViewById(R.id.event_object1));
+                    TextView imageView1 = (convertView.findViewById(R.id.event_object2_square));
+                    ImageView event = (convertView.findViewById(R.id.event));
+                    imageView.setBackground(getContext().getDrawable(step.getPieceFrom().getImage()));
+                    imageView1.setText(step.getPath().getTo().toString());
+                    event.setBackground(getContext().getDrawable(R.drawable.event_move));
+                    break;
+                case CASTLING:
+                    break;
+                case CHANGING:
+                    break;
+                case ATTACKING:
+                    break;
             }
-            case MOVING:{
-                ImageView imageView = (convertView.findViewById(R.id.event_object1));
-                TextView imageView1 = (convertView.findViewById(R.id.event_object2_square));
-                ImageView event = (convertView.findViewById(R.id.event));
-                imageView.setBackground(getContext().getDrawable(step.getBoard().getPiece(step.getPath().getFrom()).getImage()));
-                imageView1.setText(step.getPath().getTo().toString());
-                event.setBackground(getContext().getDrawable(R.drawable.event_move));
-            }
-            case CASTLING:{}
-            case CHANGING:{}
-            case ATTACKING:{}
         }
         return convertView;
     }
