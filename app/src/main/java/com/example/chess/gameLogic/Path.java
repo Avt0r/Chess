@@ -23,6 +23,10 @@ public class Path {
         return to;
     }
 
+    public static Path getPath(String path){
+        return new Path(Squares.getSquare(path.split("-")[0]),Squares.getSquare(path.split("-")[1]));
+    }
+
     @Override
     public String toString() {
         return from + "-" + to;

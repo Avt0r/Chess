@@ -47,7 +47,14 @@ public class HistoryListAdapter extends ArrayAdapter<Step> {
                 ImageView imageView = (convertView.findViewById(R.id.event_object));
                 imageView.setBackground(getContext().getDrawable(R.drawable.event_start));
             }
-            case MOVING:{}
+            case MOVING:{
+                ImageView imageView = (convertView.findViewById(R.id.event_object1));
+                TextView imageView1 = (convertView.findViewById(R.id.event_object2_square));
+                ImageView event = (convertView.findViewById(R.id.event));
+                imageView.setBackground(getContext().getDrawable(step.getBoard().getPiece(step.getPath().getFrom()).getImage()));
+                imageView1.setText(step.getPath().getTo().toString());
+                event.setBackground(getContext().getDrawable(R.drawable.event_move));
+            }
             case CASTLING:{}
             case CHANGING:{}
             case ATTACKING:{}

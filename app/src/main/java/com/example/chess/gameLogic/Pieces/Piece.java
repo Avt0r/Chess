@@ -1,6 +1,8 @@
 package com.example.chess.gameLogic.Pieces;
 
 
+import android.view.View;
+
 import com.example.chess.gameLogic.Squares;
 
 public abstract class Piece {
@@ -38,4 +40,6 @@ public abstract class Piece {
     public void setSquare(Squares square) {
         this.square = square;
     }
+
+    public abstract int getImage();
 }

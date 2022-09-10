@@ -1,5 +1,6 @@
 package com.example.chess.gameLogic.Pieces;
 
+import com.example.chess.R;
 import com.example.chess.gameLogic.Squares;
 
 public class King extends Piece {
@@ -51,5 +52,10 @@ public class King extends Piece {
     @Override
     public String toString() {
         return color ? "K" : "k";
+    }
+
+    @Override
+    public int getImage() {
+        return color ? R.drawable.piece_king_white : R.drawable.piece_king_black;
     }
 }

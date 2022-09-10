@@ -25,6 +25,11 @@ public class Step {
         return path == null? message : path.toString();
     }
 
+    public Path getPath(){
+        assert path != null || message != null;
+        return path == null? Path.getPath(message) : path;
+    }
+
     public Board getBoard() {
         return board;
     }

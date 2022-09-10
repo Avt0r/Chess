@@ -1,16 +1,18 @@
 package com.example.chess.gameLogic.Pieces;
 
 
+import com.example.chess.R;
 import com.example.chess.gameLogic.Squares;
 
-public class Bishop extends Piece{
-    public Bishop(Squares square, boolean color){
-        super(Types.BISHOP, square,color,color?3:-3);
+public class Bishop extends Piece {
+    public Bishop(Squares square, boolean color) {
+        super(Types.BISHOP, square, color, color ? 3 : -3);
     }
 
-    public Bishop(Bishop b){
+    public Bishop(Bishop b) {
         super(b);
     }
+
     @Override
     public boolean canMove(Squares square) {
         byte xto = square.getColumn();
@@ -27,6 +29,11 @@ public class Bishop extends Piece{
 
     @Override
     public String toString() {
-        return color?"B":"b";
+        return color ? "B" : "b";
+    }
+
+    @Override
+    public int getImage() {
+        return color ? R.drawable.piece_bishop_white : R.drawable.piece_bishop_black;
     }
 }
