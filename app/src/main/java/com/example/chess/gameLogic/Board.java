@@ -16,7 +16,8 @@ import java.util.stream.Collectors;
 
 public class Board {
 
-    private ArrayList<Piece> pieces;
+    private ArrayList<Piece> pieces = new ArrayList<>();
+    private final ArrayList<PiecesListElement> piecesList = new ArrayList<>();
 
     //7  56 57 68 69 60 61 62 63
     //6  48 49 50 51 52 53 54 55
@@ -46,12 +47,11 @@ public class Board {
         return lastEvent;
     }
 
-    public Board getCopy(){
+    public Board getCopy() {
         return new Board(this);
     }
 
     private void setStartPieces() {
-        pieces = new ArrayList<>();
         pieces.add(new King(E1, white));
         pieces.add(new Queen(D1, white));
         pieces.add(new Bishop(F1, white));
@@ -75,6 +75,7 @@ public class Board {
         for (int i = 48; i < 56; i++) {
             pieces.add(new Pawn(getSquare(i), black));
         }
+        piecesList.add(makeListElement(pieces));
     }
 
     public int count() {
@@ -101,12 +102,23 @@ public class Board {
         ArrayList<Piece> copy = new ArrayList<>();
         for (Piece i : pieces) {
             switch (i.type) {
-                case KING : copy.add(new King((King) i));break;
-                case QUEEN : copy.add(new Queen((Queen) i));break;
-                case ROOK : copy.add(new Rook((Rook) i));break;
-                case BISHOP : copy.add(new Bishop((Bishop) i));break;
-                case KNIGHT : copy.add(new Knight((Knight) i));break;
-                case PAWN : copy.add(new Pawn((Pawn) i));
+                case KING:
+                    copy.add(new King((King) i));
+                    break;
+                case QUEEN:
+                    copy.add(new Queen((Queen) i));
+                    break;
+                case ROOK:
+                    copy.add(new Rook((Rook) i));
+                    break;
+                case BISHOP:
+                    copy.add(new Bishop((Bishop) i));
+                    break;
+                case KNIGHT:
+                    copy.add(new Knight((Knight) i));
+                    break;
+                case PAWN:
+                    copy.add(new Pawn((Pawn) i));
             }
         }
         return copy;
@@ -396,10 +408,17 @@ public class Board {
         }
         Piece pawn = pieces.get(index);
         switch (type) {
-            case ROOK : pawn = new Rook(pawn.getSquare(), pawn.color);break;
-            case QUEEN : pawn = new Queen(pawn.getSquare(), pawn.color);break;
-            case BISHOP : pawn = new Bishop(pawn.getSquare(), pawn.color);break;
-            case KNIGHT : pawn = new Knight(pawn.getSquare(), pawn.color);
+            case ROOK:
+                pawn = new Rook(pawn.getSquare(), pawn.color);
+                break;
+            case QUEEN:
+                pawn = new Queen(pawn.getSquare(), pawn.color);
+                break;
+            case BISHOP:
+                pawn = new Bishop(pawn.getSquare(), pawn.color);
+                break;
+            case KNIGHT:
+                pawn = new Knight(pawn.getSquare(), pawn.color);
         }
         pieces.set(index, pawn);
     }
@@ -449,7 +468,7 @@ public class Board {
     }
 
     public boolean canMove(Piece piece, Squares to) {
-        if(getPiece(to) != null){
+        if (getPiece(to) != null) {
             return false;
         }
         if (piece.type.equals(Types.KNIGHT)) {
@@ -461,7 +480,7 @@ public class Board {
     }
 
     public boolean canAttack(Piece attacking, Piece attacked) {
-        if(attacking.color == attacked.color){
+        if (attacking.color == attacked.color) {
             return false;
         }
         if (attacking.type.equals(Types.KNIGHT)) {
@@ -510,11 +529,20 @@ public class Board {
         {
             List<Piece> rooks = pieces.stream().filter(i -> i.type == Types.ROOK && ((Rook) i).canCastling()).collect(Collectors.toList());
             switch (squares[1]) {
-                case C1 : rook = (Rook) rooks.stream().filter(i -> i.getSquare() == A1).findAny().orElse(null);break;
-                case G1 : rook = (Rook) rooks.stream().filter(i -> i.getSquare() == H1).findAny().orElse(null);break;
-                case C8 : rook = (Rook) rooks.stream().filter(i -> i.getSquare() == A8).findAny().orElse(null);break;
-                case G8 : rook = (Rook) rooks.stream().filter(i -> i.getSquare() == H8).findAny().orElse(null);break;
-                default : rook = null;
+                case C1:
+                    rook = (Rook) rooks.stream().filter(i -> i.getSquare() == A1).findAny().orElse(null);
+                    break;
+                case G1:
+                    rook = (Rook) rooks.stream().filter(i -> i.getSquare() == H1).findAny().orElse(null);
+                    break;
+                case C8:
+                    rook = (Rook) rooks.stream().filter(i -> i.getSquare() == A8).findAny().orElse(null);
+                    break;
+                case G8:
+                    rook = (Rook) rooks.stream().filter(i -> i.getSquare() == H8).findAny().orElse(null);
+                    break;
+                default:
+                    rook = null;
             }
         }
         if (rook == null) {
@@ -530,11 +558,19 @@ public class Board {
 
     private void castling(Squares from, Squares to) {
         switch (to) {
-            case G1 : fastMove(H1 + "-" + F1);break;
-            case B1 : fastMove(A1 + "-" + C1);break;
-            case G8 : fastMove(H8 + "-" + F8);break;
-            case B8 : fastMove(A8 + "-" + C8);break;
-            default : {
+            case G1:
+                fastMove(H1 + "-" + F1);
+                break;
+            case B1:
+                fastMove(A1 + "-" + C1);
+                break;
+            case G8:
+                fastMove(H8 + "-" + F8);
+                break;
+            case B8:
+                fastMove(A8 + "-" + C8);
+                break;
+            default: {
                 return;
             }
         }
@@ -571,7 +607,7 @@ public class Board {
     public List<Squares> getPaths(Piece piece) {
         List<Squares> paths = new ArrayList<>();
         switch (piece.type) {
-            case KING : {
+            case KING: {
                 paths = getNeighbourSquares(piece.getSquare().number);
                 List<Squares> remove = new ArrayList<>();
                 for (Squares i : paths) {
@@ -598,8 +634,9 @@ public class Board {
                             paths.add(B8);
                         }
                     }
-            }break;
-            case QUEEN : {
+            }
+            break;
+            case QUEEN: {
                 byte pos = piece.getSquare().number;
                 ArrayList<Squares> copy = getLineUp(pos);
                 if (copy != null)
@@ -681,8 +718,9 @@ public class Board {
                         }
                         paths.add(i);
                     }
-            }break;
-            case KNIGHT : {
+            }
+            break;
+            case KNIGHT: {
                 paths = getKnightMoves(piece.getSquare().number);
                 List<Squares> remove = new ArrayList<>();
                 for (Squares i : paths) {
@@ -693,8 +731,9 @@ public class Board {
                     }
                 }
                 paths.removeAll(remove);
-            }break;
-            case PAWN : {
+            }
+            break;
+            case PAWN: {
                 byte pos = piece.getSquare().number;
                 if (piece.color) {
                     if (pos + 8 < 64)
@@ -745,8 +784,9 @@ public class Board {
                                 }
                             }
                 }
-            }break;
-            case ROOK : {
+            }
+            break;
+            case ROOK: {
                 byte pos = piece.getSquare().number;
                 ArrayList<Squares> copy = getLineUp(pos);
                 if (copy != null)
@@ -788,8 +828,9 @@ public class Board {
                         }
                         paths.add(i);
                     }
-            }break;
-            case BISHOP : {
+            }
+            break;
+            case BISHOP: {
                 byte pos = piece.getSquare().number;
                 ArrayList<Squares> copy = getDiagonalUR(pos);
                 if (copy != null)
@@ -851,5 +892,52 @@ public class Board {
             }
         }
         return paths;
+    }
+
+    class PiecesListElement {
+        private final Piece[] pieces = new Piece[64];
+
+        PiecesListElement() {
+        }
+
+        PiecesListElement(Piece[] pieces) {
+            System.arraycopy(pieces, 0, this.pieces, 0, 64);
+        }
+
+        public Piece[] getPieces() {
+            return pieces;
+        }
+
+
+    }
+
+    private PiecesListElement makeListElement(Piece... pieces) {
+        PiecesListElement element = new PiecesListElement();
+        if (pieces != null) {
+            for (Piece i : pieces) {
+                element.pieces[i.getSquare().number] = i;
+            }
+        }
+        return element;
+    }
+
+    private PiecesListElement makeListElement(ArrayList<Piece> pieces) {
+        PiecesListElement element = new PiecesListElement();
+        if (pieces != null) {
+            for (Piece i : pieces) {
+                element.pieces[i.getSquare().number] = i;
+            }
+        }
+        return element;
+    }
+
+    private PiecesListElement getLastStep() {
+        assert piecesList.size() > 0;
+        return piecesList.get(piecesList.size() - 1);
+    }
+
+    public void undo() {
+        if (piecesList.size() > 1)
+            piecesList.remove(piecesList.size() - 1);
     }
 }
