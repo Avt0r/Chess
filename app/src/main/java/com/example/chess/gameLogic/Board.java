@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 
 public class Board {
 
-    private ArrayList<Piece> pieces = new ArrayList<>();
-    private final ArrayList<PiecesListElement> piecesList = new ArrayList<>();
+//    private ArrayList<Piece> pieces = new ArrayList<>();
+    private ArrayList<PiecesListElement> piecesList = new ArrayList<>();
 
     //7  56 57 68 69 60 61 62 63
     //6  48 49 50 51 52 53 54 55
@@ -40,7 +40,11 @@ public class Board {
 
     public Board(Board board) {
         this.grid = board.grid.get(0, 64);
-        this.pieces = board.getPieces();
+        this.piecesList = board.piecesList;
+    }
+
+    public ArrayList<PiecesListElement> getPiecesList() {
+        return piecesList;
     }
 
     public EventTypes getLastEvent() {
@@ -52,6 +56,7 @@ public class Board {
     }
 
     private void setStartPieces() {
+        ArrayList<Piece> pieces = new ArrayList<>();
         pieces.add(new King(E1, white));
         pieces.add(new Queen(D1, white));
         pieces.add(new Bishop(F1, white));
@@ -92,14 +97,14 @@ public class Board {
             return 2000;
         }
         int score = 0;
-        for (Piece i : pieces) {
+        for (Piece i : getLastCondition().getCondition()) {
             score += i.value;
         }
         return score;
     }
 
     public ArrayList<Piece> getPieces() {
-        ArrayList<Piece> copy = new ArrayList<>();
+        ArrayList<Piece> copy = getLastCondition().getCondition();
         for (Piece i : pieces) {
             switch (i.type) {
                 case KING:
@@ -894,7 +899,7 @@ public class Board {
         return paths;
     }
 
-    class PiecesListElement {
+    private static class PiecesListElement {
         private final Piece[] pieces = new Piece[64];
 
         PiecesListElement() {
@@ -904,34 +909,41 @@ public class Board {
             System.arraycopy(pieces, 0, this.pieces, 0, 64);
         }
 
-        public Piece[] getPieces() {
+        public Piece[] getCondition() {
             return pieces;
         }
 
-
-    }
-
-    private PiecesListElement makeListElement(Piece... pieces) {
-        PiecesListElement element = new PiecesListElement();
-        if (pieces != null) {
-            for (Piece i : pieces) {
-                element.pieces[i.getSquare().number] = i;
+        public ArrayList<Piece> getPieces(){
+            ArrayList<Piece> pieces = new ArrayList<>();
+            for (Piece i: getCondition()){
+                if(i == null) continue;
+                pieces.add(i);
             }
+            return pieces;
         }
-        return element;
-    }
 
-    private PiecesListElement makeListElement(ArrayList<Piece> pieces) {
-        PiecesListElement element = new PiecesListElement();
-        if (pieces != null) {
-            for (Piece i : pieces) {
-                element.pieces[i.getSquare().number] = i;
+        private static PiecesListElement makeListElement(Piece... pieces) {
+            PiecesListElement element = new PiecesListElement();
+            if (pieces != null) {
+                for (Piece i : pieces) {
+                    element.pieces[i.getSquare().number] = i;
+                }
             }
+            return element;
         }
-        return element;
+
+        private static PiecesListElement makeListElement(ArrayList<Piece> pieces) {
+            PiecesListElement element = new PiecesListElement();
+            if (pieces != null) {
+                for (Piece i : pieces) {
+                    element.pieces[i.getSquare().number] = i;
+                }
+            }
+            return element;
+        }
     }
 
-    private PiecesListElement getLastStep() {
+    private PiecesListElement getLastCondition() {
         assert piecesList.size() > 0;
         return piecesList.get(piecesList.size() - 1);
     }
