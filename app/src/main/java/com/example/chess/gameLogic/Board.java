@@ -398,14 +398,8 @@ public class Board {
     public boolean canChange(boolean color) {
         List<Piece> list = getLastCondition().getPieces(Types.PAWN,color);
         for (Piece i:list){
-            if(color){
-                if(top(i.getSquare().number)){
-                    return true;
-                }
-            }else{
-                if(bottom(i.getSquare().number)){
-                    return true;
-                }
+            if(((Pawn)i).canChange()){
+                return true;
             }
         }
         return false;
