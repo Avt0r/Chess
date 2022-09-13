@@ -396,9 +396,19 @@ public class Board {
     }
 
     public boolean canChange(boolean color) {
-        List<Piece> list = pieces.stream().filter(i -> i.type == Types.PAWN && i.color == color
-                && ((Pawn) i).canChange()).collect(Collectors.toList());
-        return list.size() > 0;
+        List<Piece> list = getLastCondition().getPieces(Types.PAWN,color);
+        for (Piece i:list){
+            if(color){
+                if(top(i.getSquare().number)){
+                    return true;
+                }
+            }else{
+                if(bottom(i.getSquare().number)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public void changePiece(Types type) {
