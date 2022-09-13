@@ -407,15 +407,15 @@ public class Board {
 
     public void changePiece(Types type) {
         int index = -1;
-        for (Piece i : pieces) {
+        for (Piece i : getLastCondition().list) {
             if (i.type == Types.PAWN && ((Pawn) i).canChange()) {
-                index = pieces.indexOf(i);
+                index = i.getSquare().number;
             }
         }
         if (index == -1) {
             return;
         }
-        Piece pawn = pieces.get(index);
+        Piece pawn = getLastCondition().pieces[index];
         switch (type) {
             case ROOK:
                 pawn = new Rook(pawn.getSquare(), pawn.color);
@@ -429,7 +429,7 @@ public class Board {
             case KNIGHT:
                 pawn = new Knight(pawn.getSquare(), pawn.color);
         }
-        pieces.set(index, pawn);
+        getLastCondition().pieces[index] = pawn;
     }
 
     private void move(Squares from, Squares to) {
