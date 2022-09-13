@@ -1,8 +1,5 @@
 package com.example.chess.gameLogic.Pieces;
 
-
-import android.view.View;
-
 import com.example.chess.gameLogic.Squares;
 
 public abstract class Piece {
@@ -23,6 +20,25 @@ public abstract class Piece {
         this.square = p.square;
         this.color = p.color;
         this.value = p.value;
+    }
+
+    public static Piece makeCopyPiece(Piece i) {
+        switch (i.type) {
+            case KING:
+                return new King((King) i);
+            case PAWN:
+                return new Pawn((Pawn) i);
+            case ROOK:
+                return new Rook((Rook) i);
+            case QUEEN:
+                return new Queen((Queen) i);
+            case BISHOP:
+                return new Bishop((Bishop) i);
+            case KNIGHT:
+                return new Knight((Knight) i);
+            default:
+                throw new RuntimeException();
+        }
     }
 
     public abstract boolean canMove(Squares square);

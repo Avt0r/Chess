@@ -80,7 +80,7 @@ public class Board {
         for (int i = 48; i < 56; i++) {
             pieces.add(new Pawn(getSquare(i), black));
         }
-        piecesList.add(makeListElement(pieces));
+        piecesList.add(PiecesListElement.makeListElement(pieces));
     }
 
     public int count() {
@@ -104,8 +104,8 @@ public class Board {
     }
 
     public ArrayList<Piece> getPieces() {
-        ArrayList<Piece> copy = getLastCondition().getCondition();
-        for (Piece i : pieces) {
+        ArrayList<Piece> copy = new ArrayList<>();
+        for (Piece i : getLastCondition().getPieces()) {
             switch (i.type) {
                 case KING:
                     copy.add(new King((King) i));
@@ -130,7 +130,7 @@ public class Board {
     }
 
     public Piece getPiece(Squares squares) {
-        return pieces.stream().filter(piece -> piece.getSquare().equals(squares)).findAny().orElse(null);
+        return getLastCondition().getPiece(squares);
     }
 
     public boolean isMate(boolean color) {
@@ -227,7 +227,7 @@ public class Board {
     }
 
     private King getKing(boolean color) {
-        return new King((King) pieces.stream().filter(i -> i.type.equals(Types.KING) && i.color == color).findAny().orElse(null));
+        return getLastCondition().getKing(color);
     }
 
     private boolean isKingOnAttack(boolean color) {
@@ -901,12 +901,24 @@ public class Board {
 
     private static class PiecesListElement {
         private final Piece[] pieces = new Piece[64];
+        private final List<Piece> list= new ArrayList<>();
 
-        PiecesListElement() {
-        }
+        PiecesListElement() {}
 
         PiecesListElement(Piece[] pieces) {
             System.arraycopy(pieces, 0, this.pieces, 0, 64);
+            for (Piece i:pieces) {
+                if(i!= null){
+                    list.add(i);
+                }
+            }
+        }
+
+        private List<Piece> getCopyList(){
+            List<Piece> copy = new ArrayList<>();
+            for (Piece i:list){
+                copy.add(new Piece(i));
+            }
         }
 
         public Piece[] getCondition() {
@@ -915,11 +927,35 @@ public class Board {
 
         public ArrayList<Piece> getPieces(){
             ArrayList<Piece> pieces = new ArrayList<>();
-            for (Piece i: getCondition()){
-                if(i == null) continue;
+            for (Piece i: list){
                 pieces.add(i);
             }
             return pieces;
+        }
+
+        public List<Piece> getCopyPieces(Types type, boolean color){
+            List<Piece> list= new ArrayList<>();
+            for (Piece i:pieces){
+                list.add(Piece.makeCopyPiece(i));
+            }
+            return list;
+        }
+
+        public King getKing(boolean color){
+            for (Piece i:pieces){
+                if(i != null){
+                    if(i.type == Types.KING){
+                        if(i.color == color){
+                            return (King)i;
+                        }
+                    }
+                }
+            }
+            throw new RuntimeException();
+        }
+
+        public Piece getPiece(Squares squares){
+            return pieces[squares.number];
         }
 
         private static PiecesListElement makeListElement(Piece... pieces) {
