@@ -915,30 +915,29 @@ public class Board {
         }
 
         private List<Piece> getCopyList(){
-            List<Piece> copy = new ArrayList<>();
-            for (Piece i:list){
-                copy.add(new Piece(i));
+            List<Piece> copy= new ArrayList<>();
+            for (Piece i:pieces){
+                copy.add(Piece.makeCopyPiece(i));
             }
+            return copy;
         }
 
         public Piece[] getCondition() {
             return pieces;
         }
 
-        public ArrayList<Piece> getPieces(){
-            ArrayList<Piece> pieces = new ArrayList<>();
-            for (Piece i: list){
-                pieces.add(i);
-            }
-            return pieces;
+        public List<Piece> getPieces(){
+            return list;
         }
 
-        public List<Piece> getCopyPieces(Types type, boolean color){
-            List<Piece> list= new ArrayList<>();
+        public List<Piece> getPieces(Types type, boolean color){
+            List<Piece> copy= new ArrayList<>();
             for (Piece i:pieces){
-                list.add(Piece.makeCopyPiece(i));
+                if (i.type == type || i.color == color){
+                    copy.add(i);
+                }
             }
-            return list;
+            return copy;
         }
 
         public King getKing(boolean color){
