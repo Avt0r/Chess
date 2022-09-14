@@ -437,11 +437,9 @@ public class Board {
         if (getPiece(to) != null) {
             lastEvent = EventTypes.ATTACKING;
         }
-        PiecesListElement element = new PiecesListElement();
-        grid.clear(from.number);
-        grid.set(to.number);
-        assert getPiece(from) != null;
-        getPiece(from).setSquare(to);
+        PiecesListElement element = new PiecesListElement(getLastCondition());
+        element.move(from, to);
+        piecesList.add(element);
     }
 
     public void fastMove(String path) {
@@ -904,6 +902,7 @@ public class Board {
     }
 
     private static class PiecesListElement {
+
         private final Piece[] pieces = new Piece[64];
         private final List<Piece> list = new ArrayList<>();
 
@@ -912,6 +911,11 @@ public class Board {
 
         PiecesListElement(Piece[] pieces) {
             System.arraycopy(pieces, 0, this.pieces, 0, 64);
+            updateList();
+        }
+
+        private void updateList() {
+            list.clear();
             for (Piece i : pieces) {
                 if (i != null) {
                     list.add(i);
@@ -922,6 +926,15 @@ public class Board {
         PiecesListElement(PiecesListElement element) {
             System.arraycopy(element.pieces, 0, this.pieces, 0, 64);
             this.list.addAll(element.getCopyList());
+        }
+
+        private void move(Squares from, Squares to) {
+            if (pieces[from.number] == null) {
+                return;
+            }
+            pieces[to.number] = pieces[from.number];
+            pieces[from.number] = null;
+            updateList();
         }
 
         private List<Piece> getCopyList() {
