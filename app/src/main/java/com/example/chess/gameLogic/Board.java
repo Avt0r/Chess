@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class Board {
 
-//    private ArrayList<Piece> pieces = new ArrayList<>();
+    //    private ArrayList<Piece> pieces = new ArrayList<>();
     private ArrayList<PiecesListElement> piecesList = new ArrayList<>();
 
     //7  56 57 68 69 60 61 62 63
@@ -396,9 +396,9 @@ public class Board {
     }
 
     public boolean canChange(boolean color) {
-        List<Piece> list = getLastCondition().getPieces(Types.PAWN,color);
-        for (Piece i:list){
-            if(((Pawn)i).canChange()){
+        List<Piece> list = getLastCondition().getPieces(Types.PAWN, color);
+        for (Piece i : list) {
+            if (((Pawn) i).canChange()) {
                 return true;
             }
         }
@@ -434,10 +434,10 @@ public class Board {
 
     private void move(Squares from, Squares to) {
         lastEvent = EventTypes.MOVING;
-        if (grid.get(to.number)) {
-            pieces.remove(getPiece(to));
+        if (getPiece(to) != null) {
             lastEvent = EventTypes.ATTACKING;
         }
+        PiecesListElement element = new PiecesListElement();
         grid.clear(from.number);
         grid.set(to.number);
         assert getPiece(from) != null;
@@ -905,22 +905,28 @@ public class Board {
 
     private static class PiecesListElement {
         private final Piece[] pieces = new Piece[64];
-        private final List<Piece> list= new ArrayList<>();
+        private final List<Piece> list = new ArrayList<>();
 
-        PiecesListElement() {}
+        PiecesListElement() {
+        }
 
         PiecesListElement(Piece[] pieces) {
             System.arraycopy(pieces, 0, this.pieces, 0, 64);
-            for (Piece i:pieces) {
-                if(i!= null){
+            for (Piece i : pieces) {
+                if (i != null) {
                     list.add(i);
                 }
             }
         }
 
-        private List<Piece> getCopyList(){
-            List<Piece> copy= new ArrayList<>();
-            for (Piece i:pieces){
+        PiecesListElement(PiecesListElement element) {
+            System.arraycopy(element.pieces, 0, this.pieces, 0, 64);
+            this.list.addAll(element.getCopyList());
+        }
+
+        private List<Piece> getCopyList() {
+            List<Piece> copy = new ArrayList<>();
+            for (Piece i : list) {
                 copy.add(Piece.makeCopyPiece(i));
             }
             return copy;
@@ -930,26 +936,26 @@ public class Board {
             return pieces;
         }
 
-        public List<Piece> getPieces(){
+        public List<Piece> getPieces() {
             return list;
         }
 
-        public List<Piece> getPieces(Types type, boolean color){
-            List<Piece> copy= new ArrayList<>();
-            for (Piece i:pieces){
-                if (i.type == type || i.color == color){
+        public List<Piece> getPieces(Types type, boolean color) {
+            List<Piece> copy = new ArrayList<>();
+            for (Piece i : pieces) {
+                if (i.type == type || i.color == color) {
                     copy.add(i);
                 }
             }
             return copy;
         }
 
-        public King getKing(boolean color){
-            for (Piece i:pieces){
-                if(i != null){
-                    if(i.type == Types.KING){
-                        if(i.color == color){
-                            return (King)i;
+        public King getKing(boolean color) {
+            for (Piece i : pieces) {
+                if (i != null) {
+                    if (i.type == Types.KING) {
+                        if (i.color == color) {
+                            return (King) i;
                         }
                     }
                 }
@@ -957,7 +963,7 @@ public class Board {
             throw new RuntimeException();
         }
 
-        public Piece getPiece(Squares squares){
+        public Piece getPiece(Squares squares) {
             return pieces[squares.number];
         }
 
