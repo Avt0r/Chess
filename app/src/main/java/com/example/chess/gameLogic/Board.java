@@ -9,14 +9,12 @@ import androidx.annotation.NonNull;
 import com.example.chess.gameLogic.Pieces.*;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class Board {
 
-    //    private ArrayList<Piece> pieces = new ArrayList<>();
+    //history list of pieces positions
     private final List<PiecesListElement> piecesList = new ArrayList<>();
 
     //7  56 57 68 69 60 61 62 63
@@ -28,34 +26,29 @@ public class Board {
     //1  8  9  10 11 12 13 14 15
     //0  0  1  2  3  4  5  6  7
 
-    private final BitSet grid;
+    //variable contains last event:moving, attacking, castling, change pawn to another piece
     private EventTypes lastEvent;
 
     public Board() {
-        grid = new BitSet(64);
-        grid.set(0, 16);
-        grid.set(48, 64);
-        setStartPieces();
+        setInitialPieces();
     }
 
     public Board(Board board) {
-        this.grid = board.grid.get(0, 64);
         addAllElements(board.piecesList);
     }
 
-    public List<PiecesListElement> getPiecesList() {
-        return piecesList;
-    }
-
+    //returns last event
     public EventTypes getLastEvent() {
         return lastEvent;
     }
 
+    //returns copy of board
     public Board getCopy() {
         return new Board(this);
     }
 
-    private void setStartPieces() {
+    //sets the initial positions of the pieces
+    private void setInitialPieces() {
         ArrayList<Piece> pieces = new ArrayList<>();
         pieces.add(new King(E1, white));
         pieces.add(new Queen(D1, white));
@@ -83,6 +76,7 @@ public class Board {
         addElement(PiecesListElement.makeListElement(pieces));
     }
 
+    //calculates board score
     public int count() {
         if (isCheck(true)) {
             return -1000;
@@ -97,16 +91,16 @@ public class Board {
             return 2000;
         }
         int score = 0;
-        for (Piece i : getLastCondition().getCondition()) {
+        for (Piece i : getLastCondition().getPieces()) {
             score += i.value;
         }
         return score;
     }
 
+    //returns copy of list pieces
     public List<Piece> getPieces() {
         List<Piece> copy = new ArrayList<>();
-        List<Piece> pieces = getLastCondition().getPieces();
-        for (Piece i : pieces) {
+        for (Piece i : getLastCondition().getPieces()) {
             switch (i.type) {
                 case KING:
                     copy.add(new King((King) i));
@@ -130,10 +124,12 @@ public class Board {
         return copy;
     }
 
+    //returns the piece by position
     public Piece getPiece(Squares squares) {
         return getLastCondition().getPiece(squares);
     }
 
+    //check mate
     public boolean isMate(boolean color) {
         boolean a = isCheck(color);
         boolean b = !canKingMove(color);
@@ -141,9 +137,11 @@ public class Board {
         return a && b && c;
     }
 
+    //method checks if the king will
+    //be protected after the move
     private boolean willKingBeProtected(Piece piece, Squares to) {
         Board copy = new Board(this);
-        if (grid.get(to.number)) {
+        if (isTherePiece(to)) {
             if (copy.canAttack(piece, to)) {
                 copy.move(piece.getSquare(), to);
                 return !copy.isKingOnAttack(piece.color);
@@ -157,6 +155,8 @@ public class Board {
         return false;
     }
 
+    //method checks if the king
+    //can be protected
     private boolean canKingBeProtected(boolean color) {
         if (!isCheck(color)) {
             return true;
@@ -192,10 +192,13 @@ public class Board {
         return false;
     }
 
+    //the method checks if
+    //there is a check
     public boolean isCheck(boolean color) {
         return isKingOnAttack(color);
     }
 
+    //method checks if the king can move
     private boolean canKingMove(boolean color) {
         King king = getKing(color);
         List<Squares> squares = getPaths(king);
@@ -203,7 +206,7 @@ public class Board {
             return false;
         }
         for (Squares i : squares) {
-            if (grid.get(i.number)) {
+            if (isTherePiece(i)) {
                 if (getPiece(i).color != color) {
                     List<Piece> copy = getPieces();
                     copy.removeIf(j -> j.color == color);
@@ -227,10 +230,13 @@ public class Board {
         return true;
     }
 
+    //returns king by color
     private King getKing(boolean color) {
         return getLastCondition().getKing(color);
     }
 
+    //method checks if the
+    //king is under attack
     private boolean isKingOnAttack(boolean color) {
         List<Piece> copy = getPieces();
         copy.removeIf(i -> i.color == color);
@@ -239,6 +245,7 @@ public class Board {
         return copy.size() > 0;
     }
 
+    //method checks path input
     private boolean pathCheck(String path) {
         if (path == null) {
             return false;
@@ -250,6 +257,7 @@ public class Board {
         return getSquare(array[1]) != null && getSquare(array[0]) != null;
     }
 
+    //method that looking for mistakes in the path
     private boolean mistakeCheck(String path, boolean color) {
         if (!pathCheck(path)) {
             return true;
@@ -269,7 +277,7 @@ public class Board {
                 return true;
             }
         }
-        if (grid.get(squares[1].number)) {
+        if (isTherePiece(squares[1])) {
             Piece enemy = getPiece(squares[1]);
             assert enemy != null;
             if (enemy.color == color) {
@@ -281,6 +289,7 @@ public class Board {
         }
     }
 
+    //methods check barrier between two squares
     private boolean barrierCheck(Squares from, Squares to) {
         return barrierCheck(from.number, to.number);
     }
@@ -291,13 +300,14 @@ public class Board {
             return false;
         }
         for (Squares i : path) {
-            if (grid.get(i.number)) {
+            if (isTherePiece(i)) {
                 return true;
             }
         }
         return false;
     }
 
+    //method pave path between two squares
     private ArrayList<Squares> movingPath(int from, int to) {
         if (from == to) {
             return null;
@@ -395,6 +405,7 @@ public class Board {
     private ArrayList<Squares> movingPath(Squares from, Squares to) {
         return movingPath(from.number, to.number);
     }
+
 
     public boolean canChange(boolean color) {
         List<Piece> list = getLastCondition().getPieces(Types.PAWN, color);
@@ -535,7 +546,7 @@ public class Board {
         //подходит ли ладья
         Rook rook;
         {
-            List<Piece> rooks = getLastCondition().getPieces(Types.ROOK,color);
+            List<Piece> rooks = getLastCondition().getPieces(Types.ROOK, color);
             switch (squares[1]) {
                 case C1:
                     rook = (Rook) rooks.stream().filter(i -> i.getSquare() == A1).findAny().orElse(null);
@@ -615,7 +626,7 @@ public class Board {
                 paths = getNeighbourSquares(piece.getSquare().number);
                 List<Squares> remove = new ArrayList<>();
                 for (Squares i : paths) {
-                    if (grid.get(i.number)) {
+                    if (isTherePiece(i)) {
                         if (getPiece(i).color == piece.color) {
                             remove.add(i);
                         }
@@ -645,7 +656,7 @@ public class Board {
                 ArrayList<Squares> copy = getLineUp(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -655,7 +666,7 @@ public class Board {
                 copy = getLineDown(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -665,7 +676,7 @@ public class Board {
                 copy = getLineRight(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)){
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -675,7 +686,7 @@ public class Board {
                 copy = getLineLeft(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -685,7 +696,7 @@ public class Board {
                 copy = getDiagonalUR(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -695,7 +706,7 @@ public class Board {
                 copy = getDiagonalDR(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -705,7 +716,7 @@ public class Board {
                 copy = getDiagonalDL(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -715,7 +726,7 @@ public class Board {
                 copy = getDiagonalUL(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -728,7 +739,7 @@ public class Board {
                 paths = getKnightMoves(piece.getSquare().number);
                 List<Squares> remove = new ArrayList<>();
                 for (Squares i : paths) {
-                    if (grid.get(i.number)) {
+                    if (isTherePiece(i)) {
                         if (getPiece(i).color == piece.color) {
                             remove.add(i);
                         }
@@ -741,48 +752,48 @@ public class Board {
                 byte pos = piece.getSquare().number;
                 if (piece.color) {
                     if (pos + 8 < 64)
-                        if (!grid.get(pos + 8)) {
-                            paths.add(getSquare(pos + 8));
-                            if (getLine(pos) == 1) {
-                                if (!grid.get(pos + 16)) {
-                                    paths.add(getSquare(pos + 16));
-                                }
+                        if (!isTherePiece(pos + 8)){
+                        paths.add(getSquare(pos + 8));
+                        if (getLine(pos) == 1) {
+                            if (!isTherePiece(pos + 16)) {
+                                paths.add(getSquare(pos + 16));
                             }
                         }
+                    }
                     if (!right(pos))
                         if (pos + 9 < 64)
-                            if (grid.get(pos + 9)) {
+                            if (isTherePiece(pos + 9)) {
                                 if (!Objects.requireNonNull(getPiece(getSquare(pos + 9))).color) {
                                     paths.add(getSquare(pos + 9));
                                 }
                             }
                     if (!left(pos))
                         if (pos + 7 < 64)
-                            if (grid.get(pos + 7)) {
+                            if (isTherePiece(pos + 7)) {
                                 if (!Objects.requireNonNull(getPiece(getSquare(pos + 7))).color) {
                                     paths.add(getSquare(pos + 7));
                                 }
                             }
                 } else {
                     if (pos - 8 >= 0)
-                        if (!grid.get(pos - 8)) {
+                        if (!isTherePiece(pos - 8)) {
                             paths.add(getSquare(pos - 8));
                             if (getLine(pos) == 6) {
-                                if (!grid.get(pos - 16)) {
+                                if (!isTherePiece(pos - 16)) {
                                     paths.add(getSquare(pos - 16));
                                 }
                             }
                         }
                     if (!left(pos))
                         if (pos - 9 >= 0)
-                            if (grid.get(pos - 9)) {
+                            if (isTherePiece(pos - 9)) {
                                 if (Objects.requireNonNull(getPiece(getSquare(pos - 9))).color) {
                                     paths.add(getSquare(pos - 9));
                                 }
                             }
                     if (!right(pos))
                         if (pos - 7 >= 0)
-                            if (grid.get(pos - 7)) {
+                            if (isTherePiece(pos - 7)) {
                                 if (Objects.requireNonNull(getPiece(getSquare(pos - 7))).color) {
                                     paths.add(getSquare(pos - 7));
                                 }
@@ -795,7 +806,7 @@ public class Board {
                 ArrayList<Squares> copy = getLineUp(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -805,7 +816,7 @@ public class Board {
                 copy = getLineDown(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -815,7 +826,7 @@ public class Board {
                 copy = getLineRight(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -825,7 +836,7 @@ public class Board {
                 copy = getLineLeft(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -839,7 +850,7 @@ public class Board {
                 ArrayList<Squares> copy = getDiagonalUR(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -849,7 +860,7 @@ public class Board {
                 copy = getDiagonalDR(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -859,7 +870,7 @@ public class Board {
                 copy = getDiagonalDL(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -869,7 +880,7 @@ public class Board {
                 copy = getDiagonalUL(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (grid.get(i.number)) {
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -911,8 +922,8 @@ public class Board {
             updateList();
         }
 
-        PiecesListElement(List<Piece> pieces){
-            for (Piece i:pieces){
+        PiecesListElement(List<Piece> pieces) {
+            for (Piece i : pieces) {
                 this.pieces[i.getSquare().number] = i;
             }
             updateList();
@@ -968,16 +979,7 @@ public class Board {
         }
 
         public King getKing(boolean color) {
-            for (Piece i : pieces) {
-                if (i != null) {
-                    if (i.type == Types.KING) {
-                        if (i.color == color) {
-                            return (King) i;
-                        }
-                    }
-                }
-            }
-            throw new RuntimeException();
+            return (King) getPieces(Types.KING, color).get(0);
         }
 
         public Piece getPiece(Squares squares) {
@@ -998,12 +1000,12 @@ public class Board {
         return piecesList.get(piecesList.size() - 1);
     }
 
-    private void addElement(PiecesListElement element){
+    private void addElement(PiecesListElement element) {
         piecesList.add(new PiecesListElement(element));
     }
 
-    private void addAllElements(List<PiecesListElement> elements){
-        for (PiecesListElement i:elements){
+    private void addAllElements(List<PiecesListElement> elements) {
+        for (PiecesListElement i : elements) {
             addElement(i);
         }
     }
@@ -1011,5 +1013,13 @@ public class Board {
     public void undo() {
         if (piecesList.size() > 1)
             piecesList.remove(piecesList.size() - 1);
+    }
+
+    private boolean isTherePiece(Squares square) {
+        return getLastCondition().getPiece(square) != null;
+    }
+
+    private boolean isTherePiece(int square) {
+        return getLastCondition().getPiece(getSquare(square)) != null;
     }
 }
