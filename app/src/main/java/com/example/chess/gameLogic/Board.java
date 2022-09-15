@@ -105,7 +105,8 @@ public class Board {
 
     public List<Piece> getPieces() {
         List<Piece> copy = new ArrayList<>();
-        for (Piece i : getLastCondition().getPieces()) {
+        List<Piece> pieces = getLastCondition().getPieces();
+        for (Piece i : pieces) {
             switch (i.type) {
                 case KING:
                     copy.add(new King((King) i));
@@ -910,6 +911,13 @@ public class Board {
             updateList();
         }
 
+        PiecesListElement(List<Piece> pieces){
+            for (Piece i:pieces){
+                this.pieces[i.getSquare().number] = i;
+            }
+            updateList();
+        }
+
         private void updateList() {
             list.clear();
             for (Piece i : pieces) {
@@ -951,7 +959,7 @@ public class Board {
 
         public List<Piece> getPieces(Types type, boolean color) {
             List<Piece> copy = new ArrayList<>();
-            for (Piece i : pieces) {
+            for (Piece i : list) {
                 if (i.type == type || i.color == color) {
                     copy.add(i);
                 }
@@ -977,23 +985,11 @@ public class Board {
         }
 
         private static PiecesListElement makeListElement(Piece... pieces) {
-            PiecesListElement element = new PiecesListElement();
-            if (pieces != null) {
-                for (Piece i : pieces) {
-                    element.pieces[i.getSquare().number] = i;
-                }
-            }
-            return element;
+            return new PiecesListElement(pieces);
         }
 
-        private static PiecesListElement makeListElement(ArrayList<Piece> pieces) {
-            PiecesListElement element = new PiecesListElement();
-            if (pieces != null) {
-                for (Piece i : pieces) {
-                    element.pieces[i.getSquare().number] = i;
-                }
-            }
-            return element;
+        private static PiecesListElement makeListElement(List<Piece> pieces) {
+            return new PiecesListElement(pieces);
         }
     }
 
