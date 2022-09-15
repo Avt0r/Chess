@@ -31,19 +31,16 @@ public class Human extends Player {
 
     @Override
     public void chooseType() {
-        ChangePieceDialog dialog = new ChangePieceDialog(activity,this);
+        ChangePieceDialog dialog = new ChangePieceDialog(activity, this);
         dialog.show();
     }
 
     public void paveWay() {
         while (true) {
-            if (!isMyStep()) {
-                return;
-            }
             if (clicked != null) {
                 assert game != null;
                 if (start != null && clicked != start) {
-                    if(game.board.getPiece(clicked) != null) {
+                    if (game.board.getPiece(clicked) != null) {
                         if (color == game.board.getPiece(clicked).color) {
                             start = clicked;
                         } else

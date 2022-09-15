@@ -40,9 +40,8 @@ public class AI extends Player {
 
     @Override
     public void paveWay() {
-        while (!isMyStep()){}
         String move = null;
-        ArrayList<String> paths = board.generatePaths(color);
+        List<String> paths = board.generatePaths(color);
         Board copy = new Board(board);
         int alfa = -6000;
         int beta = 6000;

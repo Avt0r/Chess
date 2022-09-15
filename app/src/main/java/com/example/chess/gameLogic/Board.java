@@ -534,7 +534,7 @@ public class Board {
         //подходит ли ладья
         Rook rook;
         {
-            List<Piece> rooks = pieces.stream().filter(i -> i.type == Types.ROOK && ((Rook) i).canCastling()).collect(Collectors.toList());
+            List<Piece> rooks = getLastCondition().getPieces(Types.ROOK,color);
             switch (squares[1]) {
                 case C1:
                     rook = (Rook) rooks.stream().filter(i -> i.getSquare() == A1).findAny().orElse(null);
@@ -582,10 +582,6 @@ public class Board {
             }
         }
         fastMove(from + "-" + to);
-    }
-
-    public String draw() {
-        return this.toString();
     }
 
     @NonNull
@@ -884,9 +880,9 @@ public class Board {
         return paths;
     }
 
-    public ArrayList<String> generatePaths(boolean color) {
-        ArrayList<String> paths = new ArrayList<>();
-        ArrayList<Piece> copyPieces = new ArrayList<>(pieces);
+    public List<String> generatePaths(boolean color) {
+        List<String> paths = new ArrayList<>();
+        List<Piece> copyPieces = getLastCondition().getCopyList();
         copyPieces.removeIf(i -> i.color != color);
         for (Piece i : copyPieces) {
             List<Squares> squares = getPaths(i);
