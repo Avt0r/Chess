@@ -971,7 +971,7 @@ public class Board {
         public List<Piece> getPieces(Types type, boolean color) {
             List<Piece> copy = new ArrayList<>();
             for (Piece i : list) {
-                if (i.type == type || i.color == color) {
+                if (i.type == type && i.color == color) {
                     copy.add(i);
                 }
             }
