@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class Board {
 
     //    private ArrayList<Piece> pieces = new ArrayList<>();
-    private ArrayList<PiecesListElement> piecesList = new ArrayList<>();
+    private final List<PiecesListElement> piecesList = new ArrayList<>();
 
     //7  56 57 68 69 60 61 62 63
     //6  48 49 50 51 52 53 54 55
@@ -40,10 +40,10 @@ public class Board {
 
     public Board(Board board) {
         this.grid = board.grid.get(0, 64);
-        this.piecesList = board.piecesList;
+        addAllElements(board.piecesList);
     }
 
-    public ArrayList<PiecesListElement> getPiecesList() {
+    public List<PiecesListElement> getPiecesList() {
         return piecesList;
     }
 
@@ -80,7 +80,7 @@ public class Board {
         for (int i = 48; i < 56; i++) {
             pieces.add(new Pawn(getSquare(i), black));
         }
-        piecesList.add(PiecesListElement.makeListElement(pieces));
+        addElement(PiecesListElement.makeListElement(pieces));
     }
 
     public int count() {
@@ -103,8 +103,8 @@ public class Board {
         return score;
     }
 
-    public ArrayList<Piece> getPieces() {
-        ArrayList<Piece> copy = new ArrayList<>();
+    public List<Piece> getPieces() {
+        List<Piece> copy = new ArrayList<>();
         for (Piece i : getLastCondition().getPieces()) {
             switch (i.type) {
                 case KING:
@@ -164,7 +164,7 @@ public class Board {
             return true;
         }
         King king = getKing(color);
-        ArrayList<Piece> enemies = getPieces();
+        List<Piece> enemies = getPieces();
         enemies.removeIf(i -> i.color == color);
         enemies.removeIf(i -> !canAttack(i, king));
         if (enemies.size() == 0) {
@@ -178,7 +178,7 @@ public class Board {
                 squares = new ArrayList<>();
             }
             squares.add(enemies.get(0).getSquare());
-            ArrayList<Piece> protect = getPieces();
+            List<Piece> protect = getPieces();
             protect.removeIf(i -> i.color != color || i.type == Types.KING);
             for (Squares i : squares) {
                 for (Piece j : protect) {
@@ -1000,6 +1000,16 @@ public class Board {
     private PiecesListElement getLastCondition() {
         assert piecesList.size() > 0;
         return piecesList.get(piecesList.size() - 1);
+    }
+
+    private void addElement(PiecesListElement element){
+        piecesList.add(new PiecesListElement(element));
+    }
+
+    private void addAllElements(List<PiecesListElement> elements){
+        for (PiecesListElement i:elements){
+            addElement(i);
+        }
     }
 
     public void undo() {
