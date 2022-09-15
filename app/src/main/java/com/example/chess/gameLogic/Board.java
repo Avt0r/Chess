@@ -451,7 +451,7 @@ public class Board {
         }
         PiecesListElement element = new PiecesListElement(getLastCondition());
         element.move(from, to);
-        piecesList.add(element);
+        addElement(element);
     }
 
     public void fastMove(String path) {
@@ -947,6 +947,7 @@ public class Board {
             if (pieces[from.number] == null) {
                 return;
             }
+            pieces[from.number].setSquare(to);
             pieces[to.number] = pieces[from.number];
             pieces[from.number] = null;
             updateList();
