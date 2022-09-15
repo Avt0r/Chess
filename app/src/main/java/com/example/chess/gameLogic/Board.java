@@ -30,7 +30,7 @@ public class Board {
     private EventTypes lastEvent;
 
     public Board() {
-        setInitialPieces();
+        addElement(getInitialPieces());
     }
 
     public Board(Board board) {
@@ -47,8 +47,8 @@ public class Board {
         return new Board(this);
     }
 
-    //sets the initial positions of the pieces
-    private void setInitialPieces() {
+    //returns the initial positions of the pieces
+    public static PiecesListElement getInitialPieces() {
         ArrayList<Piece> pieces = new ArrayList<>();
         pieces.add(new King(E1, white));
         pieces.add(new Queen(D1, white));
@@ -73,7 +73,7 @@ public class Board {
         for (int i = 48; i < 56; i++) {
             pieces.add(new Pawn(getSquare(i), black));
         }
-        addElement(PiecesListElement.makeListElement(pieces));
+        return (PiecesListElement.makeListElement(pieces));
     }
 
     //calculates board score
@@ -676,7 +676,7 @@ public class Board {
                 copy = getLineRight(pos);
                 if (copy != null)
                     for (Squares i : copy) {
-                        if (isTherePiece(i)){
+                        if (isTherePiece(i)) {
                             if (Objects.requireNonNull(getPiece(i)).color != piece.color)
                                 paths.add(i);
                             break;
@@ -752,14 +752,14 @@ public class Board {
                 byte pos = piece.getSquare().number;
                 if (piece.color) {
                     if (pos + 8 < 64)
-                        if (!isTherePiece(pos + 8)){
-                        paths.add(getSquare(pos + 8));
-                        if (getLine(pos) == 1) {
-                            if (!isTherePiece(pos + 16)) {
-                                paths.add(getSquare(pos + 16));
+                        if (!isTherePiece(pos + 8)) {
+                            paths.add(getSquare(pos + 8));
+                            if (getLine(pos) == 1) {
+                                if (!isTherePiece(pos + 16)) {
+                                    paths.add(getSquare(pos + 16));
+                                }
                             }
                         }
-                    }
                     if (!right(pos))
                         if (pos + 9 < 64)
                             if (isTherePiece(pos + 9)) {
@@ -909,7 +909,7 @@ public class Board {
         return paths;
     }
 
-    private static class PiecesListElement {
+    public static class PiecesListElement {
 
         private final Piece[] pieces = new Piece[64];
         private final List<Piece> list = new ArrayList<>();
@@ -995,9 +995,13 @@ public class Board {
         }
     }
 
-    private PiecesListElement getLastCondition() {
+    public PiecesListElement getLastCondition() {
         assert piecesList.size() > 0;
         return piecesList.get(piecesList.size() - 1);
+    }
+
+    public PiecesListElement getPreLastCondition() {
+        return piecesList.size() > 1 ? piecesList.get(piecesList.size() - 2) : getInitialPieces();
     }
 
     private void addElement(PiecesListElement element) {

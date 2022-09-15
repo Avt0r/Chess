@@ -3,20 +3,23 @@ package com.example.chess.gameLogic;
 import com.example.chess.gameLogic.Pieces.Piece;
 
 public class Step {
-    private final Board board;
+    private final Board.PiecesListElement preCondition;
+    private final Board.PiecesListElement condition;
     private Path path;
     private final String message;
     private final EventTypes type;
 
     public Step(Board board, Path path, EventTypes type){
-        this.board = new Board(board);
+        this.condition = new Board.PiecesListElement(board.getLastCondition());
+        this.preCondition = new Board.PiecesListElement(board.getPreLastCondition());
         this.path = path;
         this.message = path.toString();
         this.type = type;
     }
 
     public Step(Board board, String message, EventTypes type){
-        this.board = new Board(board);
+        this.condition = new Board.PiecesListElement(board.getLastCondition());
+        this.preCondition = new Board.PiecesListElement(board.getPreLastCondition());
         this.message = message;
         try {
             Path.getPath(message);
@@ -35,8 +38,8 @@ public class Step {
         return path;
     }
 
-    public Board getBoard() {
-        return board;
+    public Board.PiecesListElement getCondition() {
+        return condition;
     }
 
     public EventTypes getType() {
@@ -44,6 +47,6 @@ public class Step {
     }
 
     public Piece getPieceFrom(){
-        return board.getPiece(path.getFrom());
+        return preCondition.getPiece(path.getFrom());
     }
 }

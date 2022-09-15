@@ -51,7 +51,7 @@ public class Game {
         taskManager.execute();
     }
 
-    public void changePiece(com.example.chess.gameLogic.Pieces.Types type){
+    public void changePiece(com.example.chess.gameLogic.Pieces.Types type) {
         board.changePiece(type);
         Squares.updateImages();
     }
@@ -68,7 +68,7 @@ public class Game {
             EventTypes event = board.getLastEvent();
             changeStep();
             Squares.updateImages();
-            adapter.add(new Step(board,path, event));
+            adapter.add(new Step(board, path, event));
             if (board.isMate(!color)) {
                 EndGameDialog dialog = new EndGameDialog(activity);
                 dialog.show();
