@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.example.chess.gameLogic.Pieces.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -242,29 +243,26 @@ public class Board {
 
     //method that looking for mistakes in the path
     private boolean mistakeCheck(Path path, boolean color) {
-        Squares[] squares = {path.getTo(), path.getFrom()};
-        if (getPiece(squares[0]) == null) {
+        if (!isTherePiece(path.getFrom())) {
             return true;
         }
-        Piece piece = getPiece(squares[0]);
-        assert piece != null;
+        Piece piece = getPiece(path.getFrom());
         if (piece.color != color) {
             return true;
         }
         if (piece.type != Types.KNIGHT) {
-            if (barrierCheck(squares[0], squares[1])) {
+            if (barrierCheck(path.getFrom(), path.getTo())) {
                 return true;
             }
         }
-        if (isTherePiece(squares[1])) {
-            Piece enemy = getPiece(squares[1]);
-            assert enemy != null;
+        if (isTherePiece(path.getTo())) {
+            Piece enemy = getPiece(path.getTo());
             if (enemy.color == color) {
                 return true;
             }
             return !piece.canAttack(enemy);
         } else {
-            return !piece.canMove(squares[1]);
+            return !piece.canMove(path.getTo());
         }
     }
 
@@ -425,7 +423,7 @@ public class Board {
 
     private void move(Path path) {
         lastEvent = EventTypes.MOVING;
-        if (getPiece(path.getTo()) != null) {
+        if (isTherePiece(path.getTo())) {
             lastEvent = EventTypes.ATTACKING;
         }
         PiecesListElement element = new PiecesListElement(getLastCondition());
@@ -568,24 +566,7 @@ public class Board {
     @NonNull
     @Override
     public String toString() {
-        StringBuilder board = new StringBuilder("    A   B   C   D   E   F   G   H\n");
-        StringBuilder line = new StringBuilder("  #################################\n");
-        board.append(line);
-        for (int i = 63; i >= 0; i--) {
-            if (right((byte) i)) {
-                line = new StringBuilder("\n");
-            }
-            Piece piece = getPiece(getSquare(i));
-            line.insert(0, (piece == null ? " " : piece) + " # ");
-            if (left((byte) i)) {
-                line.insert(0, (getLine(i) + 1) + " # ");
-                board.append(line);
-                line = new StringBuilder();
-            }
-        }
-        board.append("  #################################\n");
-        board.append("    A   B   C   D   E   F   G   H\n");
-        return board.toString();
+        return getLastCondition().toString();
     }
 
     public List<Squares> getPaths(Piece piece) {
@@ -898,6 +879,11 @@ public class Board {
             updateList();
         }
 
+        PiecesListElement(PiecesListElement element) {
+            System.arraycopy(element.pieces, 0, this.pieces, 0, 64);
+            this.list.addAll(element.getCopyList());
+        }
+
         private void updateList() {
             list.clear();
             for (Piece i : pieces) {
@@ -907,9 +893,13 @@ public class Board {
             }
         }
 
-        PiecesListElement(PiecesListElement element) {
-            System.arraycopy(element.pieces, 0, this.pieces, 0, 64);
-            this.list.addAll(element.getCopyList());
+        private void fixPieces() {
+            for (int i = 0; i < 64; i++) {
+                if (pieces[i] != null){
+                    pieces[i].setSquare(getSquare(i));
+                }
+            }
+            updateList();
         }
 
         private void move(Squares from, Squares to) {
@@ -919,7 +909,7 @@ public class Board {
             pieces[from.number].setSquare(to);
             pieces[to.number] = pieces[from.number];
             pieces[from.number] = null;
-            updateList();
+            fixPieces();
         }
 
         private List<Piece> getCopyList() {
@@ -963,6 +953,29 @@ public class Board {
         private static PiecesListElement makeListElement(List<Piece> pieces) {
             return new PiecesListElement(pieces);
         }
+
+        @NonNull
+        @Override
+        public String toString() {
+            StringBuilder board = new StringBuilder("    A   B   C   D   E   F   G   H\n");
+            StringBuilder line = new StringBuilder("  #################################\n");
+            board.append(line);
+            for (int i = 63; i >= 0; i--) {
+                if (right((byte) i)) {
+                    line = new StringBuilder("\n");
+                }
+                Piece piece = getPiece(getSquare(i));
+                line.insert(0, (piece == null ? " " : piece) + " # ");
+                if (left((byte) i)) {
+                    line.insert(0, (getLine(i) + 1) + " # ");
+                    board.append(line);
+                    line = new StringBuilder();
+                }
+            }
+            board.append("  #################################\n");
+            board.append("    A   B   C   D   E   F   G   H\n");
+            return board.toString();
+        }
     }
 
     public PiecesListElement getLastCondition() {
@@ -987,6 +1000,7 @@ public class Board {
     public void undo() {
         if (piecesList.size() > 1)
             piecesList.remove(piecesList.size() - 1);
+        getLastCondition().fixPieces();
     }
 
     private boolean isTherePiece(Squares square) {

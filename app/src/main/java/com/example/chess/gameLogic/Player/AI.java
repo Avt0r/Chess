@@ -59,7 +59,7 @@ public class AI extends Player {
                     move = path;
                     best = x;
                 }
-                copy = new Board(board);
+                copy.undo();
             }
         } else {
             int best = 5000;
@@ -70,7 +70,7 @@ public class AI extends Player {
                     move = path;
                     best = x;
                 }
-                copy = new Board(board);
+                copy.undo();
             }
         }
         assert move != null;
@@ -89,7 +89,7 @@ public class AI extends Player {
             for (Path path : paths) {
                 copy.fastMove(path);
                 value = Math.max(value, minimax(depth - 1, copy, false, alfa, beta));
-                copy = new Board(board);
+                copy.undo();
                 alfa = Math.max(alfa, value);
                 if (value >= beta) {
                     return value;
@@ -100,7 +100,7 @@ public class AI extends Player {
             for (Path path : paths) {
                 copy.fastMove(path);
                 value = Math.min(value, minimax(depth - 1, copy, true, alfa, beta));
-                copy = new Board(board);
+                copy.undo();
                 beta = Math.min(beta, value);
                 if (value <= alfa) {
                     return value;
