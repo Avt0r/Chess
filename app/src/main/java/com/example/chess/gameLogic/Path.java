@@ -1,8 +1,8 @@
 package com.example.chess.gameLogic;
 
 public class Path {
-    private final Squares from;
-    private final Squares to;
+    private Squares from;
+    private Squares to;
 
     public Path(String path){
         String[] paths = path.split("-");
@@ -13,6 +13,14 @@ public class Path {
     public Path(Squares from, Squares to){
         this.from=from;
         this.to=to;
+    }
+
+    public void setFrom(Squares from) {
+        this.from = from;
+    }
+
+    public void setTo(Squares to) {
+        this.to = to;
     }
 
     public Squares getFrom(){

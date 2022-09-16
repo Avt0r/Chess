@@ -5,14 +5,14 @@ import static com.example.chess.gameLogic.Squares.clicked;
 import com.example.chess.activities.GameActivity;
 import com.example.chess.dialogs.ChangePieceDialog;
 import com.example.chess.gameLogic.Game;
+import com.example.chess.gameLogic.Path;
 import com.example.chess.gameLogic.Pieces.Types;
 import com.example.chess.gameLogic.Squares;
 
 import java.util.Scanner;
 
 public class Human extends Player {
-    private Squares start = null;
-    private Squares finish = null;
+    private Path path = new Path(null, null);
     private GameActivity activity;
 
     public Human() {
@@ -36,35 +36,31 @@ public class Human extends Player {
     }
 
     public void paveWay() {
+        assert game != null;
+        if (game.whoseMove() != color) {
+            return;
+        }
         while (true) {
             if (clicked != null) {
-                assert game != null;
-                if (start != null && clicked != start) {
+                if (path.getFrom() != null && clicked != path.getFrom()) {
                     if (game.board.getPiece(clicked) != null) {
                         if (color == game.board.getPiece(clicked).color) {
-                            start = clicked;
+                            path.setFrom(clicked);
                         } else
-                            finish = clicked;
+                            path.setTo(clicked);
                     } else
-                        finish = clicked;
+                        path.setTo(clicked);
                     clicked = null;
                 } else {
                     if (game.board.getPiece(clicked) != null) {
-                        start = clicked;
+                        path.setFrom(clicked);
                         clicked = null;
                     }
                 }
-                if (finish != null) {
+                if (path.getFrom() != null) {
                     break;
                 }
             }
         }
-        makePath();
-    }
-
-    public void makePath() {
-        path = start + "-" + finish;
-        start = null;
-        finish = null;
     }
 }

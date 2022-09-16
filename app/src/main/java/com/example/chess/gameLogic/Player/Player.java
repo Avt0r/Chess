@@ -1,40 +1,48 @@
 package com.example.chess.gameLogic.Player;
 
 import com.example.chess.gameLogic.Game;
+import com.example.chess.gameLogic.Path;
 import com.example.chess.gameLogic.Pieces.Types;
 
 public abstract class Player {
     protected final Game game;
     protected final boolean color;
-    protected String path;
+    protected Path path;
 
-    public Player(){
+    public Player() {
         game = null;
         color = false;
     }
 
-    public Player(Game game,boolean color){
+    public Player(Game game, boolean color) {
         this.game = game;
         this.color = color;
     }
 
-    public  void changeType(Types type){
+    public void changeType(Types type) {
         assert game != null;
         game.changePiece(type);
     }
+
     public abstract void chooseType();
+
     public abstract void paveWay();
-    public boolean hasPath(){
-        return path!=null;
+
+    public boolean hasPath() {
+        return path != null;
     }
-    protected boolean isMyStep(){
+
+    protected boolean isMyStep() {
         assert game != null;
-        return game.whoseMove()==color;
+        return game.whoseMove() == color;
     }
-    public void sendStep(){
-        if(!hasPath()){return;}
+
+    public void sendStep() {
+        if (!hasPath()) {
+            return;
+        }
         assert game != null;
-        game.makeStep(path,color);
+        game.makeStep(path, color);
         path = null;
     }
 }

@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.example.chess.gameLogic.Board;
 import com.example.chess.gameLogic.Game;
+import com.example.chess.gameLogic.Path;
 import com.example.chess.gameLogic.Pieces.Types;
 
 import java.util.ArrayList;
@@ -40,14 +41,18 @@ public class AI extends Player {
 
     @Override
     public void paveWay() {
-        String move = null;
-        List<String> paths = board.generatePaths(color);
+        assert game != null;
+        if (game.whoseMove() != color) {
+            return;
+        }
+        Path move = null;
+        List<Path> paths = board.generatePaths(color);
         Board copy = new Board(board);
         int alfa = -6000;
         int beta = 6000;
         if (color) {
             int best = -5000;
-            for (String path : paths) {
+            for (Path path : paths) {
                 copy.fastMove(path);
                 int x = minimax(depth - 1, copy, false, alfa, beta);
                 if (best < x) {
@@ -58,7 +63,7 @@ public class AI extends Player {
             }
         } else {
             int best = 5000;
-            for (String path : paths) {
+            for (Path path : paths) {
                 copy.fastMove(path);
                 int x = minimax(depth - 1, copy, true, alfa, beta);
                 if (best > x) {
@@ -76,12 +81,12 @@ public class AI extends Player {
         if (depth == 0) {
             return board.count();
         }
-        List<String> paths = board.generatePaths(color);
+        List<Path> paths = board.generatePaths(color);
         Board copy = new Board(board);
         int value;
         if (color) {
             value = -5000;
-            for (String path : paths) {
+            for (Path path : paths) {
                 copy.fastMove(path);
                 value = Math.max(value, minimax(depth - 1, copy, false, alfa, beta));
                 copy = new Board(board);
@@ -92,7 +97,7 @@ public class AI extends Player {
             }
         } else {
             value = 5000;
-            for (String path : paths) {
+            for (Path path : paths) {
                 copy.fastMove(path);
                 value = Math.min(value, minimax(depth - 1, copy, true, alfa, beta));
                 copy = new Board(board);
@@ -110,20 +115,4 @@ public class AI extends Player {
     public String toString() {
         return "AI:" + " level = " + depth + ", color = " + (color ? "white" : "black");
     }
-
-//    @SuppressLint("StaticFieldLeak")
-//    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-//        @Override
-//        protected Void doInBackground(Void... values) {
-//            paveWay(depth, board, color);
-//            publishProgress();
-//            return null;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Void unused) {
-//            super.onPostExecute(unused);
-//            sendStep();
-//        }
-//    };
 }

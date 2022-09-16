@@ -42,11 +42,6 @@ public class Board {
         return lastEvent;
     }
 
-    //returns copy of board
-    public Board getCopy() {
-        return new Board(this);
-    }
-
     //returns the initial positions of the pieces
     public static PiecesListElement getInitialPieces() {
         ArrayList<Piece> pieces = new ArrayList<>();
@@ -143,12 +138,12 @@ public class Board {
         Board copy = new Board(this);
         if (isTherePiece(to)) {
             if (copy.canAttack(piece, to)) {
-                copy.move(piece.getSquare(), to);
+                copy.move(new Path(piece.getSquare(), to));
                 return !copy.isKingOnAttack(piece.color);
             }
         } else {
             if (copy.canMove(piece, to)) {
-                copy.move(piece.getSquare(), to);
+                copy.move(new Path(piece.getSquare(), to));
                 return !copy.isKingOnAttack(piece.color);
             }
         }
@@ -245,25 +240,9 @@ public class Board {
         return copy.size() > 0;
     }
 
-    //method checks path input
-    private boolean pathCheck(String path) {
-        if (path == null) {
-            return false;
-        }
-        if (!path.contains("-")) {
-            return false;
-        }
-        String[] array = path.split("-");
-        return getSquare(array[1]) != null && getSquare(array[0]) != null;
-    }
-
     //method that looking for mistakes in the path
-    private boolean mistakeCheck(String path, boolean color) {
-        if (!pathCheck(path)) {
-            return true;
-        }
-        Squares[] squares = {getSquare(path.split("-")[0]),
-                getSquare(path.split("-")[1])};
+    private boolean mistakeCheck(Path path, boolean color) {
+        Squares[] squares = {path.getTo(), path.getFrom()};
         if (getPiece(squares[0]) == null) {
             return true;
         }
@@ -272,7 +251,7 @@ public class Board {
         if (piece.color != color) {
             return true;
         }
-        if (getPiece(squares[0]).type != Types.KNIGHT) {
+        if (piece.type != Types.KNIGHT) {
             if (barrierCheck(squares[0], squares[1])) {
                 return true;
             }
@@ -444,42 +423,32 @@ public class Board {
         getLastCondition().pieces[index] = pawn;
     }
 
-    private void move(Squares from, Squares to) {
+    private void move(Path path) {
         lastEvent = EventTypes.MOVING;
-        if (getPiece(to) != null) {
+        if (getPiece(path.getTo()) != null) {
             lastEvent = EventTypes.ATTACKING;
         }
         PiecesListElement element = new PiecesListElement(getLastCondition());
-        element.move(from, to);
+        element.move(path.getFrom(), path.getTo());
         addElement(element);
     }
 
-    public void fastMove(String path) {
-        Squares[] squares = new Squares[]{
-                getSquare(path.split("-")[0]),
-                getSquare(path.split("-")[1])
-        };
-        move(squares[0], squares[1]);
+    public void fastMove(Path path) {
+        move(path);
     }
 
-    public boolean move(String path, boolean color) {
+    public boolean move(Path path, boolean color) {
         if (mistakeCheck(path, color)) {
             return false;
         }
-        Squares from;
-        Squares to;
-        {
-            String[] ar = path.split("-");
-            from = getSquare(ar[0]);
-            to = getSquare(ar[1]);
-        }
+
         if (canCastling(color, path)) {
-            castling(from, to);
+            castling(path);
             lastEvent = EventTypes.CASTLING;
             return true;
         }
-        if (willKingBeProtected(getPiece(from), to)) {
-            move(from, to);
+        if (willKingBeProtected(getPiece(path.getFrom()), path.getTo())) {
+            move(path);
             return true;
         } else {
             return false;
@@ -521,25 +490,25 @@ public class Board {
     }
 
     //есть ли возможность рокировки
-    public boolean canCastling(boolean color, String path) {
+    public boolean canCastling(boolean color, Path path) {
         //если король под атакой, рокировка невозможна
         if (isKingOnAttack(color)) {
             return false;
         }
         King king = getKing(color);
 
-        Squares[] squares = getSquares(path.split("-"));
+        Squares[] squares = {path.getFrom(), path.getTo()};
         //если король уже ходил, то рокировка невозможна
         if (!king.canCastling(squares[0])) {
             return false;
         }
         //правильно ли указана конечная точка
         if (color) {
-            if (squares[1] != C1 && squares[1] != G1) {
+            if (path.getTo() != C1 && path.getTo() != G1) {
                 return false;
             }
         } else {
-            if (squares[1] != C8 && squares[1] != G8) {
+            if (path.getTo() != C8 && path.getTo() != G8) {
                 return false;
             }
         }
@@ -547,7 +516,7 @@ public class Board {
         Rook rook;
         {
             List<Piece> rooks = getLastCondition().getPieces(Types.ROOK, color);
-            switch (squares[1]) {
+            switch (path.getTo()) {
                 case C1:
                     rook = (Rook) rooks.stream().filter(i -> i.getSquare() == A1).findAny().orElse(null);
                     break;
@@ -568,32 +537,32 @@ public class Board {
             return false;
         }
         //если король будет под атакой, рокировка не возможна
-        if (!willKingBeProtected(king, squares[1])) {
+        if (!willKingBeProtected(king, path.getTo())) {
             return false;
         }
         //если нет преграды то можно сделать рокировку
-        return !barrierCheck(squares[0], squares[1]);
+        return !barrierCheck(path.getFrom(), path.getTo());
     }
 
-    private void castling(Squares from, Squares to) {
-        switch (to) {
+    private void castling(Path path) {
+        switch (path.getTo()) {
             case G1:
-                fastMove(H1 + "-" + F1);
+                fastMove(new Path(H1, F1));
                 break;
             case B1:
-                fastMove(A1 + "-" + C1);
+                fastMove(new Path(A1, C1));
                 break;
             case G8:
-                fastMove(H8 + "-" + F8);
+                fastMove(new Path(H8, F8));
                 break;
             case B8:
-                fastMove(A8 + "-" + C8);
+                fastMove(new Path(A8, C8));
                 break;
             default: {
                 return;
             }
         }
-        fastMove(from + "-" + to);
+        fastMove(path);
     }
 
     @NonNull
@@ -635,17 +604,17 @@ public class Board {
                 paths.removeAll(remove);
                 if (((King) piece).isFirstStep())
                     if (piece.color) {
-                        if (canCastling(true, piece.getSquare() + "-" + G1)) {
+                        if (canCastling(true, new Path(piece.getSquare(), G1))) {
                             paths.add(G1);
                         }
-                        if (canCastling(true, piece.getSquare() + "-" + B1)) {
+                        if (canCastling(true, new Path(piece.getSquare(), B1))) {
                             paths.add(B1);
                         }
                     } else {
-                        if (canCastling(false, piece.getSquare() + "-" + G8)) {
+                        if (canCastling(false, new Path(piece.getSquare(), G8))) {
                             paths.add(G8);
                         }
-                        if (canCastling(false, piece.getSquare() + "-" + B8)) {
+                        if (canCastling(false, new Path(piece.getSquare(), B8))) {
                             paths.add(B8);
                         }
                     }
@@ -807,7 +776,7 @@ public class Board {
                 if (copy != null)
                     for (Squares i : copy) {
                         if (isTherePiece(i)) {
-                            if (Objects.requireNonNull(getPiece(i)).color != piece.color)
+                            if (getPiece(i).color != piece.color)
                                 paths.add(i);
                             break;
                         }
@@ -817,7 +786,7 @@ public class Board {
                 if (copy != null)
                     for (Squares i : copy) {
                         if (isTherePiece(i)) {
-                            if (Objects.requireNonNull(getPiece(i)).color != piece.color)
+                            if (getPiece(i).color != piece.color)
                                 paths.add(i);
                             break;
                         }
@@ -827,7 +796,7 @@ public class Board {
                 if (copy != null)
                     for (Squares i : copy) {
                         if (isTherePiece(i)) {
-                            if (Objects.requireNonNull(getPiece(i)).color != piece.color)
+                            if (getPiece(i).color != piece.color)
                                 paths.add(i);
                             break;
                         }
@@ -837,7 +806,7 @@ public class Board {
                 if (copy != null)
                     for (Squares i : copy) {
                         if (isTherePiece(i)) {
-                            if (Objects.requireNonNull(getPiece(i)).color != piece.color)
+                            if (getPiece(i).color != piece.color)
                                 paths.add(i);
                             break;
                         }
@@ -851,7 +820,7 @@ public class Board {
                 if (copy != null)
                     for (Squares i : copy) {
                         if (isTherePiece(i)) {
-                            if (Objects.requireNonNull(getPiece(i)).color != piece.color)
+                            if (getPiece(i).color != piece.color)
                                 paths.add(i);
                             break;
                         }
@@ -861,7 +830,7 @@ public class Board {
                 if (copy != null)
                     for (Squares i : copy) {
                         if (isTherePiece(i)) {
-                            if (Objects.requireNonNull(getPiece(i)).color != piece.color)
+                            if (getPiece(i).color != piece.color)
                                 paths.add(i);
                             break;
                         }
@@ -871,7 +840,7 @@ public class Board {
                 if (copy != null)
                     for (Squares i : copy) {
                         if (isTherePiece(i)) {
-                            if (Objects.requireNonNull(getPiece(i)).color != piece.color)
+                            if (getPiece(i).color != piece.color)
                                 paths.add(i);
                             break;
                         }
@@ -881,7 +850,7 @@ public class Board {
                 if (copy != null)
                     for (Squares i : copy) {
                         if (isTherePiece(i)) {
-                            if (Objects.requireNonNull(getPiece(i)).color != piece.color)
+                            if (getPiece(i).color != piece.color)
                                 paths.add(i);
                             break;
                         }
@@ -892,8 +861,8 @@ public class Board {
         return paths;
     }
 
-    public List<String> generatePaths(boolean color) {
-        List<String> paths = new ArrayList<>();
+    public List<Path> generatePaths(boolean color) {
+        List<Path> paths = new ArrayList<>();
         List<Piece> copyPieces = getLastCondition().getCopyList();
         copyPieces.removeIf(i -> i.color != color);
         for (Piece i : copyPieces) {
@@ -901,7 +870,7 @@ public class Board {
             if (squares != null) {
                 for (Squares j : squares) {
                     if (willKingBeProtected(i, j)) {
-                        paths.add(i.getSquare() + "-" + j);
+                        paths.add(new Path(i.getSquare(), j));
                     }
                 }
             }

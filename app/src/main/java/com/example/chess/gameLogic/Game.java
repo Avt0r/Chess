@@ -1,5 +1,6 @@
 package com.example.chess.gameLogic;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.widget.ArrayAdapter;
 
@@ -56,7 +57,7 @@ public class Game {
         Squares.updateImages();
     }
 
-    public void makeStep(String path, boolean color) {
+    public void makeStep(Path path, boolean color) {
         if (board.move(path, color)) {
             if (board.canChange(color)) {
                 if (step) {
@@ -85,6 +86,7 @@ public class Game {
         step = !step;
     }
 
+    @SuppressLint("StaticFieldLeak")
     AsyncTask<Void, Void, Void> taskManager = new AsyncTask<Void, Void, Void>() {
         @Override
         protected Void doInBackground(Void... voids) {
