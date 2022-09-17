@@ -12,7 +12,6 @@ import com.example.chess.gameLogic.Squares;
 import java.util.Scanner;
 
 public class Human extends Player {
-    private Path path = new Path(null, null);
     private GameActivity activity;
 
     public Human() {
@@ -26,7 +25,7 @@ public class Human extends Player {
 
     @Override
     public boolean hasPath() {
-        return path != null;
+        return !path.isEmpty();
     }
 
     @Override
@@ -42,22 +41,26 @@ public class Human extends Player {
         }
         while (true) {
             if (clicked != null) {
-                if (path.getFrom() != null && clicked != path.getFrom()) {
-                    if (game.board.getPiece(clicked) != null) {
+                if (!path.isEmptyFrom()) {
+                    if (game.board.isTherePiece(clicked)) {
                         if (color == game.board.getPiece(clicked).color) {
                             path.setFrom(clicked);
-                        } else
+                            clicked = null;
+                        } else if (game.board.canAttack(game.board.getPiece(path.getFrom()), clicked)) {
                             path.setTo(clicked);
-                    } else
+                            clicked = null;
+                        }
+                    } else if (game.board.canMove(game.board.getPiece(path.getFrom()), clicked)) {
                         path.setTo(clicked);
-                    clicked = null;
+                        clicked = null;
+                    }
                 } else {
-                    if (game.board.getPiece(clicked) != null) {
+                    if (game.board.isTherePiece(clicked)) {
                         path.setFrom(clicked);
                         clicked = null;
                     }
                 }
-                if (path.getFrom() != null) {
+                if (!path.isEmpty()) {
                     break;
                 }
             }

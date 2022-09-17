@@ -7,7 +7,7 @@ import com.example.chess.gameLogic.Pieces.Types;
 public abstract class Player {
     protected final Game game;
     protected final boolean color;
-    protected Path path;
+    protected final Path path = new Path(null, null);
 
     public Player() {
         game = null;
@@ -29,7 +29,7 @@ public abstract class Player {
     public abstract void paveWay();
 
     public boolean hasPath() {
-        return path != null;
+        return !path.isEmpty();
     }
 
     protected boolean isMyStep() {
@@ -42,7 +42,7 @@ public abstract class Player {
             return;
         }
         assert game != null;
-        game.makeStep(path, color);
-        path = null;
+        game.makeStep(new Path(path), color);
+        path.setToEmpty();
     }
 }

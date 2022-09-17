@@ -50,7 +50,7 @@
         </androidx.cardview.widget.CardView>
     </androidx.cardview.widget.CardView>
     <TextView
-        android:id="@+id/event_moving_path"
+        android:id="@+id/event_message"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:background="@color/light_gray"

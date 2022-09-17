@@ -74,7 +74,7 @@ public class AI extends Player {
             }
         }
         assert move != null;
-        path = move;
+        path.set(move);
     }
 
     private int minimax(int depth, Board board, boolean color, int alfa, int beta) {

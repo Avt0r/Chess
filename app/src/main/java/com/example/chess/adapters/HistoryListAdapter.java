@@ -40,21 +40,25 @@ public class HistoryListAdapter extends ArrayAdapter<Step> {
             convertView = LayoutInflater.from(getContext())
                     .inflate(R.layout.history_list_item, null);
         }
-        ((TextView) convertView.findViewById(R.id.event_moving_path))
+        ((TextView) convertView.findViewById(R.id.event_message))
                 .setText(step.getMessage());
         {
-            ImageView imageView;
+            ImageView imageView1;
+            ImageView imageView2;
+            TextView textView2_square;
+            ImageView event;
+            TextView message;
             switch (step.getType()) {
                 case START:
-                    imageView = (convertView.findViewById(R.id.event_object));
-                    imageView.setBackground(getContext().getDrawable(R.drawable.event_start));
+                    imageView1 = (convertView.findViewById(R.id.event_object));
+                    imageView1.setBackground(getContext().getDrawable(R.drawable.event_start));
                     break;
                 case MOVING:
-                    imageView = (convertView.findViewById(R.id.event_object1));
-                    TextView imageView1 = (convertView.findViewById(R.id.event_object2_square));
-                    ImageView event = (convertView.findViewById(R.id.event));
-                    imageView.setBackground(getContext().getDrawable(step.getPieceFrom().getImage()));
-                    imageView1.setText(step.getPath().getTo().toString());
+                    imageView1 = (convertView.findViewById(R.id.event_object1));
+                    textView2_square = (convertView.findViewById(R.id.event_object2_square));
+                    event = (convertView.findViewById(R.id.event));
+                    imageView1.setBackground(getContext().getDrawable(step.getPieceFrom().getImage()));
+                    textView2_square.setText(step.getPath().getTo().toString());
                     event.setBackground(getContext().getDrawable(R.drawable.event_move));
                     break;
                 case CASTLING:
@@ -62,6 +66,12 @@ public class HistoryListAdapter extends ArrayAdapter<Step> {
                 case CHANGING:
                     break;
                 case ATTACKING:
+                    imageView1 = (convertView.findViewById(R.id.event_object1));
+                    imageView2 = (convertView.findViewById(R.id.event_object2));
+                    event = (convertView.findViewById(R.id.event));
+                    imageView1.setBackground(getContext().getDrawable(step.getPieceFrom().getImage()));
+                    imageView2.setBackground(getContext().getDrawable(step.getPieceTo().getImage()));
+                    event.setBackground(getContext().getDrawable(R.drawable.event_attack));
                     break;
             }
         }

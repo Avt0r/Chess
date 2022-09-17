@@ -49,4 +49,8 @@ public class Step {
     public Piece getPieceFrom(){
         return preCondition.getPiece(path.getFrom());
     }
+
+    public Piece getPieceTo(){
+        return preCondition.getPiece(path.getTo());
+    }
 }

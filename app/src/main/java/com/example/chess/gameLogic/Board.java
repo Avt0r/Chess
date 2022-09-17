@@ -1003,11 +1003,11 @@ public class Board {
         getLastCondition().fixPieces();
     }
 
-    private boolean isTherePiece(Squares square) {
+    public boolean isTherePiece(Squares square) {
         return getLastCondition().getPiece(square) != null;
     }
 
-    private boolean isTherePiece(int square) {
+    public boolean isTherePiece(int square) {
         return getLastCondition().getPiece(getSquare(square)) != null;
     }
 }
