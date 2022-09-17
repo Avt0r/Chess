@@ -9,14 +9,13 @@ import androidx.annotation.NonNull;
 import com.example.chess.gameLogic.Pieces.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 public class Board {
 
     //history list of pieces positions
-    private final List<PiecesListElement> piecesList = new ArrayList<>();
+    private final List<PiecesCondition> piecesList = new ArrayList<>();
 
     //7  56 57 68 69 60 61 62 63
     //6  48 49 50 51 52 53 54 55
@@ -36,6 +35,7 @@ public class Board {
 
     public Board(Board board) {
         addAllElements(board.piecesList);
+        this.lastEvent = board.lastEvent;
     }
 
     //returns last event
@@ -44,7 +44,7 @@ public class Board {
     }
 
     //returns the initial positions of the pieces
-    public static PiecesListElement getInitialPieces() {
+    public static PiecesCondition getInitialPieces() {
         ArrayList<Piece> pieces = new ArrayList<>();
         pieces.add(new King(E1, white));
         pieces.add(new Queen(D1, white));
@@ -69,7 +69,7 @@ public class Board {
         for (int i = 48; i < 56; i++) {
             pieces.add(new Pawn(getSquare(i), black));
         }
-        return (PiecesListElement.makeListElement(pieces));
+        return (PiecesCondition.makeListElement(pieces));
     }
 
     //calculates board score
@@ -87,7 +87,7 @@ public class Board {
             return 2000;
         }
         int score = 0;
-        for (Piece i : getLastCondition().getPieces()) {
+        for (Piece i : getLastCondition().getCondition()) {
             score += i.value;
         }
         return score;
@@ -96,7 +96,7 @@ public class Board {
     //returns copy of list pieces
     public List<Piece> getPieces() {
         List<Piece> copy = new ArrayList<>();
-        for (Piece i : getLastCondition().getPieces()) {
+        for (Piece i : getLastCondition().getCondition()) {
             switch (i.type) {
                 case KING:
                     copy.add(new King((King) i));
@@ -383,7 +383,7 @@ public class Board {
         return movingPath(from.number, to.number);
     }
 
-
+    //methods checks if a pawn can be changed
     public boolean canChange(boolean color) {
         List<Piece> list = getLastCondition().getPieces(Types.PAWN, color);
         for (Piece i : list) {
@@ -394,6 +394,7 @@ public class Board {
         return false;
     }
 
+    //method changes pawn to selected piece type
     public void changePiece(Types type) {
         int index = -1;
         for (Piece i : getLastCondition().list) {
@@ -404,7 +405,7 @@ public class Board {
         if (index == -1) {
             return;
         }
-        Piece pawn = getLastCondition().pieces[index];
+        Piece pawn = getLastCondition().condition[index];
         switch (type) {
             case ROOK:
                 pawn = new Rook(pawn.getSquare(), pawn.color);
@@ -418,23 +419,26 @@ public class Board {
             case KNIGHT:
                 pawn = new Knight(pawn.getSquare(), pawn.color);
         }
-        getLastCondition().pieces[index] = pawn;
+        getLastCondition().condition[index] = pawn;
     }
 
+    //method moves piece by path
     private void move(Path path) {
         lastEvent = EventTypes.MOVING;
         if (isTherePiece(path.getTo())) {
             lastEvent = EventTypes.ATTACKING;
         }
-        PiecesListElement element = new PiecesListElement(getLastCondition());
+        PiecesCondition element = new PiecesCondition(getLastCondition());
         element.move(path.getFrom(), path.getTo());
         addElement(element);
     }
 
+    //method makes fast move without check mistakes
     public void fastMove(Path path) {
         move(path);
     }
 
+    //method makes move
     public boolean move(Path path, boolean color) {
         if (mistakeCheck(path, color)) {
             return false;
@@ -453,6 +457,7 @@ public class Board {
         }
     }
 
+    //method checks if a piece can move to square
     public boolean canMove(Piece piece, Squares to) {
         if (getPiece(to) != null) {
             return false;
@@ -465,6 +470,7 @@ public class Board {
         }
     }
 
+    //method checks if a piece can attack another piece
     public boolean canAttack(Piece attacking, Piece attacked) {
         if (attacking.color == attacked.color) {
             return false;
@@ -478,6 +484,7 @@ public class Board {
         }
     }
 
+    //method checks if a piece can attack square
     public boolean canAttack(Piece attacking, Squares to) {
         if (attacking.type.equals(Types.KNIGHT)) {
             return attacking.canAttack(to);
@@ -487,20 +494,17 @@ public class Board {
         }
     }
 
-    //есть ли возможность рокировки
+    //method checks if a piece can castling
     public boolean canCastling(boolean color, Path path) {
-        //если король под атакой, рокировка невозможна
         if (isKingOnAttack(color)) {
             return false;
         }
         King king = getKing(color);
 
         Squares[] squares = {path.getFrom(), path.getTo()};
-        //если король уже ходил, то рокировка невозможна
         if (!king.canCastling(squares[0])) {
             return false;
         }
-        //правильно ли указана конечная точка
         if (color) {
             if (path.getTo() != C1 && path.getTo() != G1) {
                 return false;
@@ -510,7 +514,6 @@ public class Board {
                 return false;
             }
         }
-        //подходит ли ладья
         Rook rook;
         {
             List<Piece> rooks = getLastCondition().getPieces(Types.ROOK, color);
@@ -534,14 +537,13 @@ public class Board {
         if (rook == null) {
             return false;
         }
-        //если король будет под атакой, рокировка не возможна
         if (!willKingBeProtected(king, path.getTo())) {
             return false;
         }
-        //если нет преграды то можно сделать рокировку
         return !barrierCheck(path.getFrom(), path.getTo());
     }
 
+    //method does castling
     private void castling(Path path) {
         switch (path.getTo()) {
             case G1:
@@ -563,12 +565,14 @@ public class Board {
         fastMove(path);
     }
 
+    //method makes String from board
     @NonNull
     @Override
     public String toString() {
         return getLastCondition().toString();
     }
 
+    //method paves paths for piece
     public List<Squares> getPaths(Piece piece) {
         List<Squares> paths = new ArrayList<>();
         switch (piece.type) {
@@ -842,6 +846,7 @@ public class Board {
         return paths;
     }
 
+    //method generates paths for player
     public List<Path> generatePaths(boolean color) {
         List<Path> paths = new ArrayList<>();
         List<Piece> copyPieces = getLastCondition().getCopyList();
@@ -859,59 +864,58 @@ public class Board {
         return paths;
     }
 
-    public static class PiecesListElement {
+    //this class stores the condition of pieces
+    public static class PiecesCondition {
 
-        private final Piece[] pieces = new Piece[64];
+        //array stores the state of each square
+        private final Piece[] condition = new Piece[64];
+        //array stores all pieces on the board
         private final List<Piece> list = new ArrayList<>();
 
-        PiecesListElement() {
-        }
-
-        PiecesListElement(Piece[] pieces) {
-            System.arraycopy(pieces, 0, this.pieces, 0, 64);
-            updateList();
-        }
-
-        PiecesListElement(List<Piece> pieces) {
-            for (Piece i : pieces) {
-                this.pieces[i.getSquare().number] = i;
+        PiecesCondition(List<Piece> condition) {
+            for (Piece i : condition) {
+                this.condition[i.getSquare().number] = i;
             }
             updateList();
         }
 
-        PiecesListElement(PiecesListElement element) {
-            System.arraycopy(element.pieces, 0, this.pieces, 0, 64);
+        PiecesCondition(PiecesCondition element) {
+            System.arraycopy(element.condition, 0, this.condition, 0, 64);
             this.list.addAll(element.getCopyList());
         }
 
+        //method updates list of pieces
         private void updateList() {
             list.clear();
-            for (Piece i : pieces) {
+            for (Piece i : condition) {
                 if (i != null) {
                     list.add(i);
                 }
             }
         }
 
+        //method matches the squares of the pieces with array of squares
         private void fixPieces() {
             for (int i = 0; i < 64; i++) {
-                if (pieces[i] != null){
-                    pieces[i].setSquare(getSquare(i));
+                if (condition[i] != null){
+                    condition[i].setSquare(getSquare(i));
                 }
             }
             updateList();
         }
 
+        //method moves piece
         private void move(Squares from, Squares to) {
-            if (pieces[from.number] == null) {
+            if (condition[from.number] == null) {
                 return;
             }
-            pieces[from.number].setSquare(to);
-            pieces[to.number] = pieces[from.number];
-            pieces[from.number] = null;
+            condition[from.number].setSquare(to);
+            condition[to.number] = condition[from.number];
+            condition[from.number] = null;
             fixPieces();
         }
 
+        //method returns copy of pieces list
         private List<Piece> getCopyList() {
             List<Piece> copy = new ArrayList<>();
             for (Piece i : list) {
@@ -920,14 +924,12 @@ public class Board {
             return copy;
         }
 
-        public Piece[] getCondition() {
-            return pieces;
-        }
-
-        public List<Piece> getPieces() {
+        //method returns pieces list
+        public List<Piece> getCondition() {
             return list;
         }
 
+        //method returns sorted pieces list
         public List<Piece> getPieces(Types type, boolean color) {
             List<Piece> copy = new ArrayList<>();
             for (Piece i : list) {
@@ -938,22 +940,22 @@ public class Board {
             return copy;
         }
 
+        //method returns king
         public King getKing(boolean color) {
             return (King) getPieces(Types.KING, color).get(0);
         }
 
+        //method returns piece by square
         public Piece getPiece(Squares squares) {
-            return pieces[squares.number];
+            return condition[squares.number];
         }
 
-        private static PiecesListElement makeListElement(Piece... pieces) {
-            return new PiecesListElement(pieces);
+        //method makes condition of pieces list
+        private static PiecesCondition makeListElement(List<Piece> pieces) {
+            return new PiecesCondition(pieces);
         }
 
-        private static PiecesListElement makeListElement(List<Piece> pieces) {
-            return new PiecesListElement(pieces);
-        }
-
+        //method returns String of condition
         @NonNull
         @Override
         public String toString() {
@@ -978,31 +980,37 @@ public class Board {
         }
     }
 
-    public PiecesListElement getLastCondition() {
+    //method returns last condition of list
+    public PiecesCondition getLastCondition() {
         assert piecesList.size() > 0;
         return piecesList.get(piecesList.size() - 1);
     }
 
-    public PiecesListElement getPreLastCondition() {
+    //method returns pre last condition of list
+    public PiecesCondition getPreLastCondition() {
         return piecesList.size() > 1 ? piecesList.get(piecesList.size() - 2) : getInitialPieces();
     }
 
-    private void addElement(PiecesListElement element) {
-        piecesList.add(new PiecesListElement(element));
+    //method adds new element to list
+    private void addElement(PiecesCondition element) {
+        piecesList.add(new PiecesCondition(element));
     }
 
-    private void addAllElements(List<PiecesListElement> elements) {
-        for (PiecesListElement i : elements) {
+    //method adds list of elements
+    private void addAllElements(List<PiecesCondition> elements) {
+        for (PiecesCondition i : elements) {
             addElement(i);
         }
     }
 
+    //method deletes last condition
     public void undo() {
         if (piecesList.size() > 1)
             piecesList.remove(piecesList.size() - 1);
         getLastCondition().fixPieces();
     }
 
+    //method checks if the piece is on square
     public boolean isTherePiece(Squares square) {
         return getLastCondition().getPiece(square) != null;
     }
