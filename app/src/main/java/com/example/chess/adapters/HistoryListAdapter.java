@@ -47,7 +47,6 @@ public class HistoryListAdapter extends ArrayAdapter<Step> {
             ImageView imageView2;
             TextView textView2_square;
             ImageView event;
-            TextView message;
             switch (step.getType()) {
                 case START:
                     imageView1 = (convertView.findViewById(R.id.event_object));
