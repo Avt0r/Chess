@@ -59,17 +59,18 @@ public class Game {
 
     public void makeStep(Path path, boolean color) {
         if (board.move(path, color)) {
+            EventTypes event = board.getLastEvent();
+            adapter.add(new Step(board, path, event));
             if (board.canChange(color)) {
                 if (step) {
                     first.chooseType();
                 } else {
                     second.chooseType();
                 }
+                adapter.add(new Step(board, "Changing", EventTypes.CHANGING));
             }
-            EventTypes event = board.getLastEvent();
-            changeStep();
             Squares.updateImages();
-            adapter.add(new Step(board, path, event));
+            changeStep();
             if (board.isMate(!color)) {
                 EndGameDialog dialog = new EndGameDialog(activity);
                 dialog.show();

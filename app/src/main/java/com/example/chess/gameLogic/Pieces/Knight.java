@@ -4,8 +4,11 @@ import com.example.chess.R;
 import com.example.chess.gameLogic.Squares;
 
 public class Knight extends Piece {
-    public Knight(Squares square, boolean color) {
-        super(Types.KNIGHT, square, color, color ? 3 : -3);
+
+    private static final int value = 3;
+
+    public Knight(boolean color) {
+        super(Types.KNIGHT, color);
     }
 
     public Knight(Knight k) {
@@ -13,18 +16,23 @@ public class Knight extends Piece {
     }
 
     @Override
-    public boolean canMove(Squares square) {
-        int xto = square.getColumn();
-        int xfrom = getSquare().getColumn();
-        int yto = square.getLine();
-        int yfrom = getSquare().getLine();
+    public boolean canMove(Squares from, Squares to) {
+        int xto = to.getColumn();
+        int xfrom = from.getColumn();
+        int yto = to.getLine();
+        int yfrom = from.getLine();
         return (Math.abs(xfrom - xto) == 2 && Math.abs(yfrom - yto) == 1) ||
                 (Math.abs(xfrom - xto) == 1 && Math.abs(yfrom - yto) == 2);
     }
 
     @Override
-    public boolean canAttack(Squares square) {
-        return canMove(square);
+    public boolean canAttack(Squares from, Squares to) {
+        return canMove(from, to);
+    }
+
+    @Override
+    public int getValue() {
+        return color ? value : - value;
     }
 
     @Override

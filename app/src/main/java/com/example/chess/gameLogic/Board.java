@@ -3,13 +3,16 @@ package com.example.chess.gameLogic;
 import static com.example.chess.gameLogic.Game.black;
 import static com.example.chess.gameLogic.Game.white;
 import static com.example.chess.gameLogic.Squares.*;
+import static com.example.chess.gameLogic.Squares.getSquare;
 
 import androidx.annotation.NonNull;
 
 import com.example.chess.gameLogic.Pieces.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class Board {
@@ -25,6 +28,7 @@ public class Board {
     //2  16 17 18 19 20 21 22 23
     //1  8  9  10 11 12 13 14 15
     //0  0  1  2  3  4  5  6  7
+    //   A  B  C  D  E  F  G  H
 
     //variable contains last event:moving, attacking, castling, change pawn to another piece
     private EventTypes lastEvent;
@@ -45,31 +49,34 @@ public class Board {
 
     //returns the initial positions of the pieces
     public static PiecesCondition getInitialPieces() {
-        ArrayList<Piece> pieces = new ArrayList<>();
-        pieces.add(new King(E1, white));
-        pieces.add(new Queen(D1, white));
-        pieces.add(new Bishop(F1, white));
-        pieces.add(new Bishop(C1, white));
-        pieces.add(new Knight(B1, white));
-        pieces.add(new Knight(G1, white));
-        pieces.add(new Rook(A1, white));
-        pieces.add(new Rook(H1, white));
+        Piece[] condition = new Piece[64];
+        condition[A1.number] = new Rook(white);
+        condition[B1.number] = new Knight(white);
+        condition[C1.number] = new Bishop(white);
+        condition[D1.number] = new Queen(white);
+        condition[E1.number] = new King(white);
+        condition[F1.number] = new Bishop(white);
+        condition[G1.number] = new Knight(white);
+        condition[H1.number] = new Rook(white);
+
         for (int i = 8; i < 16; i++) {
-            pieces.add(new Pawn(getSquare(i), white));
+            condition[i] = new Pawn(white);
         }
 
-        pieces.add(new King(E8, black));
-        pieces.add(new Queen(D8, black));
-        pieces.add(new Bishop(F8, black));
-        pieces.add(new Bishop(C8, black));
-        pieces.add(new Knight(B8, black));
-        pieces.add(new Knight(G8, black));
-        pieces.add(new Rook(A8, black));
-        pieces.add(new Rook(H8, black));
+        condition[A8.number] = new Rook(black);
+        condition[B8.number] = new Knight(black);
+        condition[C8.number] = new Bishop(black);
+        condition[D8.number] = new Queen(black);
+        condition[E8.number] = new King(black);
+        condition[F8.number] = new Bishop(black);
+        condition[G8.number] = new Knight(black);
+        condition[H8.number] = new Rook(black);
+
         for (int i = 48; i < 56; i++) {
-            pieces.add(new Pawn(getSquare(i), black));
+            condition[i] = new Pawn(black);
         }
-        return (PiecesCondition.makeListElement(pieces));
+
+        return (PiecesCondition.makeListElement(condition));
     }
 
     //calculates board score
@@ -88,41 +95,24 @@ public class Board {
         }
         int score = 0;
         for (Piece i : getLastCondition().getCondition()) {
-            score += i.value;
+            score += i.getValue();
         }
         return score;
     }
 
     //returns copy of list pieces
     public List<Piece> getPieces() {
-        List<Piece> copy = new ArrayList<>();
-        for (Piece i : getLastCondition().getCondition()) {
-            switch (i.type) {
-                case KING:
-                    copy.add(new King((King) i));
-                    break;
-                case QUEEN:
-                    copy.add(new Queen((Queen) i));
-                    break;
-                case ROOK:
-                    copy.add(new Rook((Rook) i));
-                    break;
-                case BISHOP:
-                    copy.add(new Bishop((Bishop) i));
-                    break;
-                case KNIGHT:
-                    copy.add(new Knight((Knight) i));
-                    break;
-                case PAWN:
-                    copy.add(new Pawn((Pawn) i));
-            }
-        }
-        return copy;
+        return getLastCondition().getCondition();
     }
 
     //returns the piece by position
     public Piece getPiece(Squares squares) {
         return getLastCondition().getPiece(squares);
+    }
+
+    //returns the square of piece
+    public Squares getSquare(Piece piece) {
+        return getLastCondition().getSquareOfPiece(piece);
     }
 
     //check mate
@@ -136,19 +126,21 @@ public class Board {
     //method checks if the king will
     //be protected after the move
     private boolean willKingBeProtected(Piece piece, Squares to) {
-        Board copy = new Board(this);
+        boolean b = false;
         if (isTherePiece(to)) {
-            if (copy.canAttack(piece, to)) {
-                copy.move(new Path(piece.getSquare(), to));
-                return !copy.isKingOnAttack(piece.color);
+            if (canAttack(piece, to)) {
+                move(new Path(getSquare(piece), to));
+                b = !isKingOnAttack(piece.color);
+                undo();
             }
         } else {
-            if (copy.canMove(piece, to)) {
-                copy.move(new Path(piece.getSquare(), to));
-                return !copy.isKingOnAttack(piece.color);
+            if (canMove(piece, to)) {
+                move(new Path(getSquare(piece), to));
+                b = !isKingOnAttack(piece.color);
+                undo();
             }
         }
-        return false;
+        return b;
     }
 
     //method checks if the king
@@ -169,12 +161,12 @@ public class Board {
         } else if (enemies.size() > 1) {
             return false;
         } else {
-            ArrayList<Squares> squares = movingPath(king.getSquare(),
-                    enemies.get(0).getSquare());
+            List<Squares> squares = movingPath(getSquare(king),
+                    getSquare(enemies.get(0)));
             if (squares == null) {
                 squares = new ArrayList<>();
             }
-            squares.add(enemies.get(0).getSquare());
+            squares.add(getSquare(enemies.get(0)));
             List<Piece> protect = getPieces();
             protect.removeIf(i -> i.color != color || i.type == Types.KING);
             for (Squares i : squares) {
@@ -206,7 +198,7 @@ public class Board {
                 if (getPiece(i).color != color) {
                     List<Piece> copy = getPieces();
                     copy.removeIf(j -> j.color == color);
-                    copy.removeIf(j -> j.getSquare() == i);
+                    copy.removeIf(j -> getSquare(j) == i);
                     for (Piece p : copy) {
                         if (canAttack(p, i)) {
                             return false;
@@ -260,9 +252,9 @@ public class Board {
             if (enemy.color == color) {
                 return true;
             }
-            return !piece.canAttack(enemy);
+            return !piece.canAttack(path.getFrom(), path.getTo());
         } else {
-            return !piece.canMove(path.getTo());
+            return !piece.canMove(path.getFrom(), path.getTo());
         }
     }
 
@@ -272,7 +264,7 @@ public class Board {
     }
 
     private boolean barrierCheck(int from, int to) {
-        ArrayList<Squares> path = movingPath(from, to);
+        List<Squares> path = movingPath(from, to);
         if (path == null) {
             return false;
         }
@@ -285,24 +277,24 @@ public class Board {
     }
 
     //method pave path between two squares
-    private ArrayList<Squares> movingPath(int from, int to) {
+    private List<Squares> movingPath(int from, int to) {
         if (from == to) {
             return null;
         }
         if (isNeighbour(from, to)) {
             return null;
         }
-        ArrayList<Squares> path = new ArrayList<>();
+        List<Squares> path = new ArrayList<>();
         if (inOneColumn(from, to)) {
             if (from > to) {
                 do {
                     from -= 8;
-                    path.add(getSquare(from));
+                    path.add(Squares.getSquare(from));
                 } while (!isNeighbour(from, to));
             } else {
                 do {
                     from += 8;
-                    path.add(getSquare(from));
+                    path.add(Squares.getSquare(from));
                 } while (!isNeighbour(from, to));
             }
             return path;
@@ -310,40 +302,40 @@ public class Board {
             if (from > to) {
                 do {
                     from--;
-                    path.add(getSquare(from));
+                    path.add(Squares.getSquare(from));
                 } while (!isNeighbour(from, to));
             } else {
                 do {
                     from++;
-                    path.add(getSquare(from));
+                    path.add(Squares.getSquare(from));
                 } while (!isNeighbour(from, to));
             }
         } else {
             if (onRightTop((byte) from, (byte) to)) {
                 do {
                     from += 9;
-                    path.add(getSquare(from));
+                    path.add(Squares.getSquare(from));
                 } while (!isNeighbour(from, to) &&
                         !inOneColumn(from, to) &&
                         !inOneLine(from, to));
             } else if (onLeftTop((byte) from, (byte) to)) {
                 do {
                     from += 7;
-                    path.add(getSquare(from));
+                    path.add(Squares.getSquare(from));
                 } while (!isNeighbour(from, to) &&
                         !inOneColumn(from, to) &&
                         !inOneLine(from, to));
             } else if (onRightBot((byte) from, (byte) to)) {
                 do {
                     from -= 7;
-                    path.add(getSquare(from));
+                    path.add(Squares.getSquare(from));
                 } while (!isNeighbour(from, to) &&
                         !inOneColumn(from, to) &&
                         !inOneLine(from, to));
             } else if (onLeftBot((byte) from, (byte) to)) {
                 do {
                     from -= 9;
-                    path.add(getSquare(from));
+                    path.add(Squares.getSquare(from));
                 } while (!isNeighbour(from, to) &&
                         !inOneColumn(from, to) &&
                         !inOneLine(from, to));
@@ -353,24 +345,24 @@ public class Board {
                     if (from > to) {
                         do {
                             from--;
-                            path.add(getSquare(from));
+                            path.add(Squares.getSquare(from));
                         } while (!isNeighbour(from, to));
                     } else {
                         do {
                             from++;
-                            path.add(getSquare(from));
+                            path.add(Squares.getSquare(from));
                         } while (!isNeighbour(from, to));
                     }
                 } else {
                     if (from > to) {
                         do {
                             from -= 8;
-                            path.add(getSquare(from));
+                            path.add(Squares.getSquare(from));
                         } while (!isNeighbour(from, to));
                     } else {
                         do {
                             from += 8;
-                            path.add(getSquare(from));
+                            path.add(Squares.getSquare(from));
                         } while (!isNeighbour(from, to));
                     }
                 }
@@ -379,7 +371,7 @@ public class Board {
         return path;
     }
 
-    private ArrayList<Squares> movingPath(Squares from, Squares to) {
+    private List<Squares> movingPath(Squares from, Squares to) {
         return movingPath(from.number, to.number);
     }
 
@@ -387,7 +379,7 @@ public class Board {
     public boolean canChange(boolean color) {
         List<Piece> list = getLastCondition().getPieces(Types.PAWN, color);
         for (Piece i : list) {
-            if (((Pawn) i).canChange()) {
+            if (Pawn.canChange(getSquare(i), i.color)) {
                 return true;
             }
         }
@@ -397,29 +389,30 @@ public class Board {
     //method changes pawn to selected piece type
     public void changePiece(Types type) {
         int index = -1;
-        for (Piece i : getLastCondition().list) {
-            if (i.type == Types.PAWN && ((Pawn) i).canChange()) {
-                index = i.getSquare().number;
+        for (Piece i : getLastCondition().list.keySet()) {
+            if (i.type == Types.PAWN && Pawn.canChange(getSquare(i), i.color)) {
+                index = getSquare(i).number;
             }
         }
         if (index == -1) {
             return;
         }
-        Piece pawn = getLastCondition().condition[index];
+        Piece piece = getLastCondition().condition[index];
         switch (type) {
             case ROOK:
-                pawn = new Rook(pawn.getSquare(), pawn.color);
+                piece = new Rook(piece.color);
                 break;
             case QUEEN:
-                pawn = new Queen(pawn.getSquare(), pawn.color);
+                piece = new Queen(piece.color);
                 break;
             case BISHOP:
-                pawn = new Bishop(pawn.getSquare(), pawn.color);
+                piece = new Bishop(piece.color);
                 break;
             case KNIGHT:
-                pawn = new Knight(pawn.getSquare(), pawn.color);
+                piece = new Knight(piece.color);
         }
-        getLastCondition().condition[index] = pawn;
+        getLastCondition().condition[index] = piece;
+        getLastCondition().updateList();
     }
 
     //method moves piece by path
@@ -428,9 +421,9 @@ public class Board {
         if (isTherePiece(path.getTo())) {
             lastEvent = EventTypes.ATTACKING;
         }
-        PiecesCondition element = new PiecesCondition(getLastCondition());
-        element.move(path.getFrom(), path.getTo());
-        addElement(element);
+        PiecesCondition condition = new PiecesCondition(getLastCondition());
+        condition.move(path.getFrom(), path.getTo());
+        addElement(condition);
     }
 
     //method makes fast move without check mistakes
@@ -459,38 +452,41 @@ public class Board {
 
     //method checks if a piece can move to square
     public boolean canMove(Piece piece, Squares to) {
+        Squares from = getSquare(piece);
         if (getPiece(to) != null) {
             return false;
         }
         if (piece.type.equals(Types.KNIGHT)) {
-            return piece.canMove(to);
+            return piece.canMove(from, to);
         } else {
-            return piece.canMove(to) &&
-                    !barrierCheck(piece.getSquare(), to);
+            return piece.canMove(from, to) &&
+                    !barrierCheck(from, to);
         }
     }
 
     //method checks if a piece can attack another piece
     public boolean canAttack(Piece attacking, Piece attacked) {
+        Squares from = getSquare(attacking);
+        Squares to = getSquare(attacked);
         if (attacking.color == attacked.color) {
             return false;
         }
         if (attacking.type.equals(Types.KNIGHT)) {
-            return attacking.canAttack(attacked);
+            return attacking.canAttack(from, to);
         } else {
-            return attacking.canAttack(attacked) &&
-                    !barrierCheck(attacking.getSquare(),
-                            attacked.getSquare());
+            return attacking.canAttack(from, to) &&
+                    !barrierCheck(from, to);
         }
     }
 
     //method checks if a piece can attack square
     public boolean canAttack(Piece attacking, Squares to) {
+        Squares from = getSquare(attacking);
         if (attacking.type.equals(Types.KNIGHT)) {
-            return attacking.canAttack(to);
+            return attacking.canAttack(from, to);
         } else {
-            return attacking.canAttack(to) &&
-                    !barrierCheck(attacking.getSquare(), to);
+            return attacking.canAttack(from, to) &&
+                    !barrierCheck(from, to);
         }
     }
 
@@ -515,25 +511,24 @@ public class Board {
             }
         }
         Rook rook;
-        {
-            List<Piece> rooks = getLastCondition().getPieces(Types.ROOK, color);
-            switch (path.getTo()) {
-                case C1:
-                    rook = (Rook) rooks.stream().filter(i -> i.getSquare() == A1).findAny().orElse(null);
-                    break;
-                case G1:
-                    rook = (Rook) rooks.stream().filter(i -> i.getSquare() == H1).findAny().orElse(null);
-                    break;
-                case C8:
-                    rook = (Rook) rooks.stream().filter(i -> i.getSquare() == A8).findAny().orElse(null);
-                    break;
-                case G8:
-                    rook = (Rook) rooks.stream().filter(i -> i.getSquare() == H8).findAny().orElse(null);
-                    break;
-                default:
-                    rook = null;
-            }
+
+        switch (path.getTo()) {
+            case C1:
+                rook = (Rook) getLastCondition().condition[A1.number];
+                break;
+            case G1:
+                rook = (Rook) getLastCondition().condition[H1.number];
+                break;
+            case C8:
+                rook = (Rook) getLastCondition().condition[A8.number];
+                break;
+            case G8:
+                rook = (Rook) getLastCondition().condition[H8.number];
+                break;
+            default:
+                rook = null;
         }
+
         if (rook == null) {
             return false;
         }
@@ -577,7 +572,7 @@ public class Board {
         List<Squares> paths = new ArrayList<>();
         switch (piece.type) {
             case KING: {
-                paths = getNeighbourSquares(piece.getSquare().number);
+                paths = getNeighbourSquares(getSquare(piece).number);
                 List<Squares> remove = new ArrayList<>();
                 for (Squares i : paths) {
                     if (isTherePiece(i)) {
@@ -589,24 +584,24 @@ public class Board {
                 paths.removeAll(remove);
                 if (((King) piece).isFirstStep())
                     if (piece.color) {
-                        if (canCastling(true, new Path(piece.getSquare(), G1))) {
+                        if (canCastling(true, new Path(getSquare(piece), G1))) {
                             paths.add(G1);
                         }
-                        if (canCastling(true, new Path(piece.getSquare(), B1))) {
+                        if (canCastling(true, new Path(getSquare(piece), B1))) {
                             paths.add(B1);
                         }
                     } else {
-                        if (canCastling(false, new Path(piece.getSquare(), G8))) {
+                        if (canCastling(false, new Path(getSquare(piece), G8))) {
                             paths.add(G8);
                         }
-                        if (canCastling(false, new Path(piece.getSquare(), B8))) {
+                        if (canCastling(false, new Path(getSquare(piece), B8))) {
                             paths.add(B8);
                         }
                     }
             }
             break;
             case QUEEN: {
-                byte pos = piece.getSquare().number;
+                byte pos = getSquare(piece).number;
                 ArrayList<Squares> copy = getLineUp(pos);
                 if (copy != null)
                     for (Squares i : copy) {
@@ -690,7 +685,7 @@ public class Board {
             }
             break;
             case KNIGHT: {
-                paths = getKnightMoves(piece.getSquare().number);
+                paths = getKnightMoves(getSquare(piece).number);
                 List<Squares> remove = new ArrayList<>();
                 for (Squares i : paths) {
                     if (isTherePiece(i)) {
@@ -703,60 +698,60 @@ public class Board {
             }
             break;
             case PAWN: {
-                byte pos = piece.getSquare().number;
+                byte pos = getSquare(piece).number;
                 if (piece.color) {
                     if (pos + 8 < 64)
                         if (!isTherePiece(pos + 8)) {
-                            paths.add(getSquare(pos + 8));
+                            paths.add(Squares.getSquare(pos + 8));
                             if (getLine(pos) == 1) {
                                 if (!isTherePiece(pos + 16)) {
-                                    paths.add(getSquare(pos + 16));
+                                    paths.add(Squares.getSquare(pos + 16));
                                 }
                             }
                         }
                     if (!right(pos))
                         if (pos + 9 < 64)
                             if (isTherePiece(pos + 9)) {
-                                if (!Objects.requireNonNull(getPiece(getSquare(pos + 9))).color) {
-                                    paths.add(getSquare(pos + 9));
+                                if (!Objects.requireNonNull(getPiece(Squares.getSquare(pos + 9))).color) {
+                                    paths.add(Squares.getSquare(pos + 9));
                                 }
                             }
                     if (!left(pos))
                         if (pos + 7 < 64)
                             if (isTherePiece(pos + 7)) {
-                                if (!Objects.requireNonNull(getPiece(getSquare(pos + 7))).color) {
-                                    paths.add(getSquare(pos + 7));
+                                if (!Objects.requireNonNull(getPiece(Squares.getSquare(pos + 7))).color) {
+                                    paths.add(Squares.getSquare(pos + 7));
                                 }
                             }
                 } else {
                     if (pos - 8 >= 0)
                         if (!isTherePiece(pos - 8)) {
-                            paths.add(getSquare(pos - 8));
+                            paths.add(Squares.getSquare(pos - 8));
                             if (getLine(pos) == 6) {
                                 if (!isTherePiece(pos - 16)) {
-                                    paths.add(getSquare(pos - 16));
+                                    paths.add(Squares.getSquare(pos - 16));
                                 }
                             }
                         }
                     if (!left(pos))
                         if (pos - 9 >= 0)
                             if (isTherePiece(pos - 9)) {
-                                if (Objects.requireNonNull(getPiece(getSquare(pos - 9))).color) {
-                                    paths.add(getSquare(pos - 9));
+                                if (Objects.requireNonNull(getPiece(Squares.getSquare(pos - 9))).color) {
+                                    paths.add(Squares.getSquare(pos - 9));
                                 }
                             }
                     if (!right(pos))
                         if (pos - 7 >= 0)
                             if (isTherePiece(pos - 7)) {
-                                if (Objects.requireNonNull(getPiece(getSquare(pos - 7))).color) {
-                                    paths.add(getSquare(pos - 7));
+                                if (Objects.requireNonNull(getPiece(Squares.getSquare(pos - 7))).color) {
+                                    paths.add(Squares.getSquare(pos - 7));
                                 }
                             }
                 }
             }
             break;
             case ROOK: {
-                byte pos = piece.getSquare().number;
+                byte pos = getSquare(piece).number;
                 ArrayList<Squares> copy = getLineUp(pos);
                 if (copy != null)
                     for (Squares i : copy) {
@@ -800,7 +795,7 @@ public class Board {
             }
             break;
             case BISHOP: {
-                byte pos = piece.getSquare().number;
+                byte pos = getSquare(piece).number;
                 ArrayList<Squares> copy = getDiagonalUR(pos);
                 if (copy != null)
                     for (Squares i : copy) {
@@ -849,14 +844,14 @@ public class Board {
     //method generates paths for player
     public List<Path> generatePaths(boolean color) {
         List<Path> paths = new ArrayList<>();
-        List<Piece> copyPieces = getLastCondition().getCopyList();
+        List<Piece> copyPieces = getPieces();
         copyPieces.removeIf(i -> i.color != color);
         for (Piece i : copyPieces) {
             List<Squares> squares = getPaths(i);
             if (squares != null) {
                 for (Squares j : squares) {
                     if (willKingBeProtected(i, j)) {
-                        paths.add(new Path(i.getSquare(), j));
+                        paths.add(new Path(getSquare(i), j));
                     }
                 }
             }
@@ -870,38 +865,26 @@ public class Board {
         //array stores the state of each square
         private final Piece[] condition = new Piece[64];
         //array stores all pieces on the board
-        private final List<Piece> list = new ArrayList<>();
+        private final Map<Piece, Squares> list = new HashMap<>();
 
-        PiecesCondition(List<Piece> condition) {
-            for (Piece i : condition) {
-                this.condition[i.getSquare().number] = i;
-            }
+        PiecesCondition(Piece[] condition) {
+            System.arraycopy(condition, 0, this.condition, 0, 64);
             updateList();
         }
 
         PiecesCondition(PiecesCondition element) {
             System.arraycopy(element.condition, 0, this.condition, 0, 64);
-            this.list.addAll(element.getCopyList());
+            updateList();
         }
 
         //method updates list of pieces
         private void updateList() {
             list.clear();
-            for (Piece i : condition) {
-                if (i != null) {
-                    list.add(i);
+            for (int i = 0; i < condition.length; i++) {
+                if (condition[i] != null) {
+                    list.put(condition[i], Squares.getSquare(i));
                 }
             }
-        }
-
-        //method matches the squares of the pieces with array of squares
-        private void fixPieces() {
-            for (int i = 0; i < 64; i++) {
-                if (condition[i] != null){
-                    condition[i].setSquare(getSquare(i));
-                }
-            }
-            updateList();
         }
 
         //method moves piece
@@ -909,30 +892,20 @@ public class Board {
             if (condition[from.number] == null) {
                 return;
             }
-            condition[from.number].setSquare(to);
             condition[to.number] = condition[from.number];
             condition[from.number] = null;
-            fixPieces();
-        }
-
-        //method returns copy of pieces list
-        private List<Piece> getCopyList() {
-            List<Piece> copy = new ArrayList<>();
-            for (Piece i : list) {
-                copy.add(Piece.makeCopyPiece(i));
-            }
-            return copy;
+            updateList();
         }
 
         //method returns pieces list
         public List<Piece> getCondition() {
-            return list;
+            return new ArrayList<>(list.keySet());
         }
 
         //method returns sorted pieces list
         public List<Piece> getPieces(Types type, boolean color) {
             List<Piece> copy = new ArrayList<>();
-            for (Piece i : list) {
+            for (Piece i : list.keySet()) {
                 if (i.type == type && i.color == color) {
                     copy.add(i);
                 }
@@ -940,9 +913,19 @@ public class Board {
             return copy;
         }
 
+        //returns first found piece
+        public Piece getPiece(Types type, boolean color){
+            for (Piece i: list.keySet()){
+                if(i.type == type && i.color == color){
+                    return i;
+                }
+            }
+            return null;
+        }
+
         //method returns king
         public King getKing(boolean color) {
-            return (King) getPieces(Types.KING, color).get(0);
+            return (King) getPiece(Types.KING, color);
         }
 
         //method returns piece by square
@@ -950,9 +933,15 @@ public class Board {
             return condition[squares.number];
         }
 
+        //method returns square of piece
+        public Squares getSquareOfPiece(Piece piece) {
+            return list.get(piece);
+        }
+
         //method makes condition of pieces list
-        private static PiecesCondition makeListElement(List<Piece> pieces) {
-            return new PiecesCondition(pieces);
+        private static PiecesCondition makeListElement(Piece[] condition) {
+            assert condition.length == 64;
+            return new PiecesCondition(condition);
         }
 
         //method returns String of condition
@@ -966,7 +955,7 @@ public class Board {
                 if (right((byte) i)) {
                     line = new StringBuilder("\n");
                 }
-                Piece piece = getPiece(getSquare(i));
+                Piece piece = getPiece(Squares.getSquare(i));
                 line.insert(0, (piece == null ? " " : piece) + " # ");
                 if (left((byte) i)) {
                     line.insert(0, (getLine(i) + 1) + " # ");
@@ -1007,7 +996,6 @@ public class Board {
     public void undo() {
         if (piecesList.size() > 1)
             piecesList.remove(piecesList.size() - 1);
-        getLastCondition().fixPieces();
     }
 
     //method checks if the piece is on square
@@ -1016,6 +1004,6 @@ public class Board {
     }
 
     public boolean isTherePiece(int square) {
-        return getLastCondition().getPiece(getSquare(square)) != null;
+        return getLastCondition().getPiece(Squares.getSquare(square)) != null;
     }
 }

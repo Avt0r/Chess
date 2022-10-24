@@ -1,5 +1,6 @@
 package com.example.chess.gameLogic;
 
+import com.example.chess.gameLogic.Pieces.Pawn;
 import com.example.chess.gameLogic.Pieces.Piece;
 
 public class Step {
@@ -48,6 +49,14 @@ public class Step {
 
     public Piece getPieceFrom(){
         return preCondition.getPiece(path.getFrom());
+    }
+
+    public Piece getPieceAfterChanging(){
+
+    }
+
+    public Piece getPieceFromAfterMove(){
+        return condition.getPiece(path.getFrom());
     }
 
     public Piece getPieceTo(){

@@ -4,10 +4,13 @@ import com.example.chess.R;
 import com.example.chess.gameLogic.Squares;
 
 public class King extends Piece {
+
+    private static final int value = 100;
+
     private boolean firstStep = true;
 
-    public King(Squares square, boolean color) {
-        super(Types.KING, square, color, color ? 100 : -100);
+    public King(boolean color) {
+        super(Types.KING, color);
     }
 
     public King(King k) {
@@ -15,22 +18,16 @@ public class King extends Piece {
         this.firstStep = k.firstStep;
     }
 
-    @Override
-    public void setSquare(Squares square) {
-        super.setSquare(square);
-        firstStep = false;
-    }
-
     public boolean isFirstStep() {
         return firstStep;
     }
 
     @Override
-    public boolean canMove(Squares square) {
-        int xto = square.getColumn();
-        int xfrom = getSquare().getColumn();
-        int yto = square.getLine();
-        int yfrom = getSquare().getLine();
+    public boolean canMove(Squares from, Squares to) {
+        int xto = to.getColumn();
+        int xfrom = from.getColumn();
+        int yto = to.getLine();
+        int yfrom = from.getLine();
         return Math.abs(xfrom - xto) <= 1 && Math.abs(yfrom - yto) <= 1;
     }
 
@@ -45,8 +42,17 @@ public class King extends Piece {
     }
 
     @Override
-    public boolean canAttack(Squares square) {
-        return canMove(square);
+    public boolean canAttack(Squares from, Squares to) {
+        return canMove(from, to);
+    }
+
+    public void setFirstStep(boolean firstStep) {
+        this.firstStep = firstStep;
+    }
+
+    @Override
+    public int getValue() {
+        return color ? value : - value;
     }
 
     @Override

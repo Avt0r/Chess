@@ -4,8 +4,11 @@ import com.example.chess.R;
 import com.example.chess.gameLogic.Squares;
 
 public class Pawn extends Piece {
-    public Pawn(Squares square, boolean color) {
-        super(Types.PAWN, square, color, color ? 1 : -1);
+
+    private static final int value = 1;
+
+    public Pawn(boolean color) {
+        super(Types.PAWN, color);
     }
 
     public Pawn(Pawn p) {
@@ -13,11 +16,11 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public boolean canMove(Squares square) {
-        int xto = square.getColumn();
-        int xfrom = getSquare().getColumn();
-        int yto = square.getLine();
-        int yfrom = getSquare().getLine();
+    public boolean canMove(Squares from, Squares to) {
+        int xto = to.getColumn();
+        int xfrom = from.getColumn();
+        int yto = to.getLine();
+        int yfrom = from.getLine();
         if (xto != xfrom) {
             return false;
         }
@@ -25,7 +28,7 @@ public class Pawn extends Piece {
             if (yfrom >= yto) {
                 return false;
             }
-            if (getSquare().getLine() == 1) {
+            if (yto == 1) {
                 return yto - yfrom <= 2;
             } else {
                 return yto - yfrom == 1;
@@ -34,7 +37,7 @@ public class Pawn extends Piece {
             if (yfrom <= yto) {
                 return false;
             }
-            if (getSquare().getLine() == 6) {
+            if (yto == 6) {
                 return yfrom - yto <= 2;
             } else {
                 return yfrom - yto == 1;
@@ -42,25 +45,30 @@ public class Pawn extends Piece {
         }
     }
 
-    public boolean canChange(){
+    public static boolean canChange(Squares square, boolean color){
         if(color){
-            return Squares.top(getSquare().number);
+            return Squares.top(square.number);
         }else{
-            return Squares.bottom(getSquare().number);
+            return Squares.bottom(square.number);
         }
     }
 
     @Override
-    public boolean canAttack(Squares square) {
-        int xto = square.getColumn();
-        int xfrom = getSquare().getColumn();
-        int yto = square.getLine();
-        int yfrom = getSquare().getLine();
+    public boolean canAttack(Squares from, Squares to) {
+        int xto = to.getColumn();
+        int xfrom = from.getColumn();
+        int yto = to.getLine();
+        int yfrom = from.getLine();
         if (color) {
             return Math.abs(xfrom - xto) == 1 && yto - yfrom == 1;
         } else {
             return Math.abs(xfrom - xto) == 1 && yfrom - yto == 1;
         }
+    }
+
+    @Override
+    public int getValue() {
+        return color ? value : - value;
     }
 
     @Override

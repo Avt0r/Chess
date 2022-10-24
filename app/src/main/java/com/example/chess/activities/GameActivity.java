@@ -34,7 +34,7 @@ public class GameActivity extends AppCompatActivity {
         Types second = (Types) bundle.get("Player2");
 
         historyList = findViewById(R.id.history_list);
-        ArrayAdapter<Step> adapter = new HistoryListAdapter(this, R.layout.history_list_item, new ArrayList<>());
+        ArrayAdapter<Step> adapter = new HistoryListAdapter(this, R.layout.history_list_item);
         historyList.setAdapter(adapter);
 
         if(first == Types.Human && second == Types.AI){
