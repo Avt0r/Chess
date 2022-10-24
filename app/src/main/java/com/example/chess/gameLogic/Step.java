@@ -51,10 +51,6 @@ public class Step {
         return preCondition.getPiece(path.getFrom());
     }
 
-    public Piece getPieceAfterChanging(){
-
-    }
-
     public Piece getPieceFromAfterMove(){
         return condition.getPiece(path.getFrom());
     }

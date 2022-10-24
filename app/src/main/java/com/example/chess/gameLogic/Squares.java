@@ -103,7 +103,7 @@ public enum Squares {
             i.image.setImageResource(R.drawable.nothing);
         }
         for (Piece i : board.getPieces()) {
-            ImageButton image = i.getSquare().image;
+            ImageButton image = board.getSquare(i).image;
             assert image != null;
             switch (i.type) {
                 case KING: {
