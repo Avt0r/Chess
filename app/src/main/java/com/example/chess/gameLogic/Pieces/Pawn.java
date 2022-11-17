@@ -5,10 +5,11 @@ import com.example.chess.gameLogic.Squares;
 
 public class Pawn extends Piece {
 
+    public static final Types type = Types.PAWN;
     private static final int value = 1;
 
-    public Pawn(boolean color) {
-        super(Types.PAWN, color);
+    public Pawn(Squares square, boolean color) {
+        super(square, color);
     }
 
     public Pawn(Pawn p) {
@@ -16,11 +17,11 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public boolean canMove(Squares from, Squares to) {
+    public boolean canMove(Squares to) {
         int xto = to.getColumn();
-        int xfrom = from.getColumn();
+        int xfrom = square.getColumn();
         int yto = to.getLine();
-        int yfrom = from.getLine();
+        int yfrom = square.getLine();
         if (xto != xfrom) {
             return false;
         }
@@ -54,11 +55,11 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public boolean canAttack(Squares from, Squares to) {
+    public boolean canAttack(Squares to) {
         int xto = to.getColumn();
-        int xfrom = from.getColumn();
+        int xfrom = square.getColumn();
         int yto = to.getLine();
-        int yfrom = from.getLine();
+        int yfrom = square.getLine();
         if (color) {
             return Math.abs(xfrom - xto) == 1 && yto - yfrom == 1;
         } else {
@@ -74,6 +75,11 @@ public class Pawn extends Piece {
     @Override
     public String toString() {
         return color ? "P" : "p";
+    }
+
+    @Override
+    public Types getType() {
+        return type;
     }
 
     @Override

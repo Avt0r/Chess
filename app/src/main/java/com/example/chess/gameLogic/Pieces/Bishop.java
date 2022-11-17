@@ -6,10 +6,11 @@ import com.example.chess.gameLogic.Squares;
 
 public class Bishop extends Piece {
 
+    public static final Types type = Types.BISHOP;
     private static final int value = 3;
 
-    public Bishop(boolean color) {
-        super(Types.BISHOP, color);
+    public Bishop(Squares square, boolean color) {
+        super(square, color);
     }
 
     public Bishop(Bishop b) {
@@ -17,17 +18,17 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public boolean canMove(Squares from, Squares to) {
+    public boolean canMove(Squares to) {
         byte xto = to.getColumn();
-        byte xfrom = from.getColumn();
+        byte xfrom = square.getColumn();
         byte yto = to.getLine();
-        byte yfrom = from.getLine();
+        byte yfrom = square.getLine();
         return Math.abs(xto - xfrom) == Math.abs(yto - yfrom);
     }
 
     @Override
-    public boolean canAttack(Squares from, Squares to) {
-        return canMove(from,to);
+    public boolean canAttack(Squares to) {
+        return canMove(to);
     }
 
     @Override
@@ -40,6 +41,10 @@ public class Bishop extends Piece {
         return color ? "B" : "b";
     }
 
+    @Override
+    public Types getType() {
+        return type;
+    }
 
     @Override
     public int getImage() {

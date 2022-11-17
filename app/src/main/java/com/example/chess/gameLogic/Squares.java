@@ -103,9 +103,9 @@ public enum Squares {
             i.image.setImageResource(R.drawable.nothing);
         }
         for (Piece i : board.getPieces()) {
-            ImageButton image = board.getSquare(i).image;
+            ImageButton image = i.getSquare().image;
             assert image != null;
-            switch (i.type) {
+            switch (i.getType()) {
                 case KING: {
                     if (i.color) {
                         image.setImageResource(R.drawable.piece_king_white);

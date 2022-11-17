@@ -3,21 +3,22 @@ package com.example.chess.gameLogic.Pieces;
 import com.example.chess.gameLogic.Squares;
 
 public abstract class Piece {
-    public final boolean color;
-    public final Types type;
 
-    public Piece(Types type, boolean color) {
-        this.type = type;
+    public final boolean color;
+    protected Squares square;
+
+    public Piece(Squares square, boolean color) {
+        this.square = square;
         this.color = color;
     }
 
     public Piece(Piece p) {
-        this.type = p.type;
+        this.square = p.square;
         this.color = p.color;
     }
 
     public static Piece makeCopyPiece(Piece i) {
-        switch (i.type) {
+        switch (i.getType()) {
             case KING:
                 return new King((King) i);
             case PAWN:
@@ -35,10 +36,23 @@ public abstract class Piece {
         }
     }
 
+    public abstract boolean canMove(Squares square);
 
-    public abstract boolean canMove(Squares from, Squares to);
+    public abstract boolean canAttack(Squares square);
 
-    public abstract boolean canAttack(Squares from, Squares to);
+    public boolean canAttack(Piece piece) {
+        return canAttack(piece.square);
+    }
+
+    public Squares getSquare() {
+        return square;
+    }
+
+    public void move(Squares square) {
+        this.square = square;
+    }
+
+    public abstract Types getType();
 
     public abstract int getValue();
 

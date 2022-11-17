@@ -5,10 +5,11 @@ import com.example.chess.gameLogic.Squares;
 
 public class Queen extends Piece {
 
+    public static final Types type = Types.QUEEN;
     private static final int value = 12;
 
-    public Queen(boolean color) {
-        super(Types.QUEEN, color);
+    public Queen(Squares square, boolean color) {
+        super(square, color);
     }
 
     public Queen(Queen q) {
@@ -16,18 +17,18 @@ public class Queen extends Piece {
     }
 
     @Override
-    public boolean canMove(Squares from, Squares to) {
+    public boolean canMove(Squares to) {
         int xto = to.getColumn();
-        int xfrom = from.getColumn();
+        int xfrom = square.getColumn();
         int yto = to.getLine();
-        int yfrom = from.getLine();
+        int yfrom = square.getLine();
         return Math.abs(xto - xfrom) == Math.abs(yto - yfrom) ||
                 (xto == xfrom || yto == yfrom);
     }
 
     @Override
-    public boolean canAttack(Squares from, Squares to) {
-        return canMove(from, to);
+    public boolean canAttack(Squares to) {
+        return canMove(to);
     }
 
     @Override
@@ -38,6 +39,11 @@ public class Queen extends Piece {
     @Override
     public String toString() {
         return color ? "Q" : "q";
+    }
+
+    @Override
+    public Types getType() {
+        return type;
     }
 
     @Override

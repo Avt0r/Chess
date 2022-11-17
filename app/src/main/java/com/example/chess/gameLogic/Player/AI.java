@@ -73,7 +73,7 @@ public class AI extends Player {
                 copy.undo();
             }
         }
-        assert move != null;
+        assert !move.isEmpty();
         path.set(move);
     }
 

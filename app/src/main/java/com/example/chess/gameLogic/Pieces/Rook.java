@@ -4,11 +4,13 @@ import com.example.chess.R;
 import com.example.chess.gameLogic.Squares;
 
 public class Rook extends Piece {
+
+    public static final Types type = Types.ROOK;
     private static final int value = 5;
     private boolean firstStep = true;
 
-    public Rook(boolean color) {
-        super(Types.ROOK, color);
+    public Rook(Squares square, boolean color) {
+        super(square, color);
     }
 
     public Rook(Rook r) {
@@ -21,11 +23,11 @@ public class Rook extends Piece {
     }
 
     @Override
-    public boolean canMove(Squares from, Squares to) {
+    public boolean canMove(Squares to) {
         int xto = to.getColumn();
-        int xfrom = from.getColumn();
+        int xfrom = square.getColumn();
         int yto = to.getLine();
-        int yfrom = from.getLine();
+        int yfrom = square.getLine();
         return (xto == xfrom || yto == yfrom);
     }
 
@@ -34,8 +36,8 @@ public class Rook extends Piece {
     }
 
     @Override
-    public boolean canAttack(Squares from, Squares to) {
-        return canMove(from, to);
+    public boolean canAttack(Squares to) {
+        return canMove(to);
     }
 
     public void setFirstStep(boolean firstStep) {
@@ -50,6 +52,11 @@ public class Rook extends Piece {
     @Override
     public String toString() {
         return color ? "R" : "r";
+    }
+
+    @Override
+    public Types getType() {
+        return type;
     }
 
     @Override

@@ -5,12 +5,13 @@ import com.example.chess.gameLogic.Squares;
 
 public class King extends Piece {
 
+    public static final Types type = Types.KING;
     private static final int value = 100;
 
     private boolean firstStep = true;
 
-    public King(boolean color) {
-        super(Types.KING, color);
+    public King(Squares square, boolean color) {
+        super(square, color);
     }
 
     public King(King k) {
@@ -23,11 +24,11 @@ public class King extends Piece {
     }
 
     @Override
-    public boolean canMove(Squares from, Squares to) {
+    public boolean canMove(Squares to) {
         int xto = to.getColumn();
-        int xfrom = from.getColumn();
+        int xfrom = square.getColumn();
         int yto = to.getLine();
-        int yfrom = from.getLine();
+        int yfrom = square.getLine();
         return Math.abs(xfrom - xto) <= 1 && Math.abs(yfrom - yto) <= 1;
     }
 
@@ -42,8 +43,8 @@ public class King extends Piece {
     }
 
     @Override
-    public boolean canAttack(Squares from, Squares to) {
-        return canMove(from, to);
+    public boolean canAttack(Squares to) {
+        return canMove(to);
     }
 
     public void setFirstStep(boolean firstStep) {
@@ -58,6 +59,11 @@ public class King extends Piece {
     @Override
     public String toString() {
         return color ? "K" : "k";
+    }
+
+    @Override
+    public Types getType() {
+        return type;
     }
 
     @Override
