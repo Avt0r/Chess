@@ -11,5 +11,3 @@ I accept any criticism and advice
 
 My contacts:
 Telegram - https://t.me/AVTH0R
-
-Developed by the Avt0r
